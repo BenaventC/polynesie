@@ -31,9 +31,11 @@ pre {
 
 # 1. Introduction
 
-Dans cette note de recherche nous analysons les commentaires déposés sur Tripadvisor et relatifs à un hôtel en particulier (On fera tourner plus tard la procédure sur l'intégralité des commentaires). 
+Dans cette note de recherche nous analysons les commentaires déposés sur Tripadvisor et relatifs à un hôtel en particulier, c'est un corpus de petite taille (1737 commentaire) qui set de corpus test. On aura pu lors d'une visite, réaliser de manière plus concrête, la clarté de certains éléments de résultats, l'observation directe confirme la description indirecte donnée par le texte. On fera tourner plus tard la procédure sur l'intégralité des commentaires. 
 
-L'objectif est d'abord de décrire le contenu de ces textes, puis d'en analyser la tonalité avec plusieurs outils distincts et ainsi d'en évaluer la consistance. On s'intéressera notamment à la relation entre ces indicateurs et la note données par les évaluateurs.
+L'objectif est d'abord de décrire le contenu de ces textes, puis d'en analyser la tonalité avec plusieurs outils pour en évaluer la consistance. On s'intéressera enfin à la relation entre les indicateurs de sentiments et la note donnée par les évaluateurs. Le texte est-il en accord avec le jugement numérique? 
+
+Cette question est d'autant plus importante que les notes sont l'objet de différents processus qui affectent leur distribution pour leur donner une forme caractéristiques fortement biaisée à droite en faveur des 4 et 5 étoiles. Ce sont des processus psycho-sociaux (biais d'approbation), des processus d'apprentissage, l'effet des dispositifs et algorithmes de moderation (voir la detection de la toxicité cf @)  
 
 
 Le "pipe" de traitement consiste à
@@ -46,13 +48,13 @@ Le "pipe" de traitement consiste à
  * 6) Analyse du sentiment selon la méthode FEEL (nrc) et frLSD. (lexicoder)
  * 7) Analyse des émotions
  * 8) Examiner l'évolution des indicateurs obtenus
- * 9) comparer les scores de sentiments avec les notes données par les consommateurs
- * 10) tenter d'expliquer des notes par le textes au travers d'une approche machine-learning avec un modèles naive bayes et des modèles types SVM et random forest.
- * 11) analyser et évaluer les modèles par des critère AUC et autres.
+ * 9) Comparer les scores de sentiments avec les notes données par les consommateurs
+ * 10) Tenter d'expliquer des notes par le textes au travers d'une approche machine-learning avec un modèles naive bayes et des modèles types SVM et random forest.
+ * 11) Analyser et évaluer les modèles par des critère AUC et autres.
 
 # 2. Initialisation
 
-L'annotation est réalisée avec `cleanNLP`, on emploie `text2vec` pour le LDA, pour la représentation des dépendances `packcircles` sera utile. Pour le détail du code on consultera le [repo]().
+L'annotation est réalisée avec `cleanNLP`, on emploie `text2vec` pour le LDA, pour la représentation des dépendances `packcircles` sera utile. Pour le détail du code on consultera le [repo](https://github.com/BenaventC/polynesie).
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE, include=TRUE,message=FALSE,warning=FALSE,cache=TRUE)
@@ -75,7 +77,6 @@ library(wesanderson)
 la lecture du fichier ne pose aucune difficulté, en voici les trois premiers éléments pour avoir une idée de sa structure.
 
 ```{r data01, include=TRUE, message=TRUE}
-library(readr)
 #reviews <- read_csv("resultatb.csv", col_names = FALSE)
 reviews <- read_delim("resultatb.csv", 
     ";", escape_double = FALSE, col_names = FALSE, 
@@ -98,7 +99,7 @@ head(cnlp_get_token(obj))
 
 ## 3.1 Des éléments du discours (POS)
 
-La composition en catégories  morphosyntaxiques n'est pas forcément évidente à interprêter, il faudrait connaitre leurs distribution dans des corpus de référence ( langue standard, ou base d'avis de consommateurs). 
+La composition en catégories  morphosyntaxiques n'est pas forcément évidente à interprêter, il faudrait connaitre leurs distribution dans des corpus de référence (langue standard, ou base d'avis de consommateurs). 
 
 On examine les différentes catégories de termes. Les plus fréquents sont des noms communs, accompagnés des déterminants. Les commentaires seraient-il descriptifs. La ponctuation est fréquente, les adverbes et adjectifs viennent ensuite : signe d'un caractère peu évaluatif et très descriptif ?
 
@@ -116,9 +117,9 @@ Nous pouvons désormais travailler sur un corpus linguistiquement plus homogène
 
 ## 3.2 verbes, noms communs et adjectif et adverbes
 
-Le texte à l'état brut comporte de nombreux signes qui amènent peu de sens lexical : des points , des noms de lieux, des déterminants. La stratégie que nous engageons est différentes de cette de tm qui juxtapose : mise en minuscule, suppression des ponctuactions, des mentions et des ref html, notre stratégie n'élimine pas mais se concentre sur les éléments lexicaux les plus signifiants. (au moins de manières premières, les autres éléments secondaires peuvent révéler des inflexions plus fines, comme l'usage de la ponctuation le permet - Proust l'aura démontré ref  les coutures proust)
+Le texte à l'état brut comporte de nombreux signes qui amènent peu de sens lexical : des points , des noms de lieux, des déterminants. La stratégie que nous engageons est différentes de cette de tm qui juxtapose : mise en minuscule, suppression des ponctuactions, des mentions et des ref html, notre stratégie n'élimine pas mais se concentre sur les éléments lexicaux les plus signifiants. Au moins de manière première, les autres éléments, secondaires, peuvent révéler des flexions plus fines, comme l'usage de la ponctuation le permet - Proust l'aura démontré (@isabelle_serca_les_2010)
 
-Il s'agira simplement des verbes, des noms propres, des adjectifs et des adverbes. On en présente les trois distributions.
+Il s'agira ici simplement des verbes, des noms propres, des adjectifs et des adverbes. On en présente les trois distributions.
 
  * Les noms communs mettent en tête des éléments liés aux logement, à sa localisation et son voisinage, ainsi qu'au séjour et à l'accueil.
  * Les qualificatifs sont très positifs et principalement expressifs, proche, propre et confortable en sont les attributs les plus fréquents
@@ -144,7 +145,7 @@ g4<-ggplot(ling,aes(x=reorder(lemma,Freq),y=Freq))+geom_bar(stat="identity",fill
 grid.arrange(g2,g3,g4,ncol=3)
 ```
 
-L'expérience reste largement inexprimée si ce n'est pas un jugement très positif (bien, bon, beau) qui nous incite à explorer dans une prochaine section les sentiments et émotions associées. Mais auparavant tentons d'isoler dans ces ensembles de termes des sujets d'évaluation.
+L'expérience reste largement inexprimée si ce n'est pas un jugement très positif (bien, bon, beau) qui nous incite à explorer dans une prochaine section les sentiments et émotions associées. Mais auparavant, tentons d'isoler dans ces ensembles de termes des sujets et thème d'évaluation.De quoi parlent les commentateurs ?
 
 # 4. Un modèle LDA de topics
 
@@ -177,8 +178,8 @@ Les résultats se présentent sous la forme d'une liste des termes les plus pert
 
  * le lieu : beau, superbe, magnifique. il est constitué par le lagon et la piscine et le lagonarium qui est l'originalité de cet hôtel proche de l'aéroport et qui est aussi un hotel de transit.
  * la situation, et les commodités. L'aéroport, la douche.
- * Le spectacle et le buffet forme un troisième point d'intérêt.
- * La mer, nager un quatrième
+ * Le spectacle et le buffet forme un troisième point d'intérêt. 
+ * La mer, nager un quatrième topic est relatif à l'environnement proche et aux activités
  * le personnel et sa serviabilité marque le 5ème sujet
  * c'est l'accueil qui est désigné dans le dernier sujet.
 
@@ -211,12 +212,12 @@ L'intégration dans le htlm n'étant pas facile on n'en représente qu'une illus
  *  Sa proximité avec les autres topics via une analyse des similarités, ce qui est représenté sur le panneau de gauche. La surface des cercles est proportionnelle à la frequence des tokens. 
  *  Pour un topic donné, le profil est indiqué à droite : les trente principaux termes sont classés par ordre de pertinence (modulée par le paramètre lambda) de haut en bas, leurs fréquences sont indiquées sur les barres horizontales et comparées à la fréquence du mot dans l'ensemble du corpus.
 
-![Topic](LDAvis01.jpg){ width=75% }
+![Topic](LDAvis01.jpg){ width=80% }
 
 
- * En cliquant sur les mots on peut aussi observer leur distribution dans les différents groupes et peut en apprécier la spécificité.
+ * En cliquant sur les mots on peut aussi observer leur distribution dans les différents groupes et peut en apprécier la spécificité. Dans le cas suivant (serviable) seul quatres thèmes y sont relatifs, plus de la moitié appartiennent au topis "Qualité du personnel"
  
-![Topic](LDAvis02.jpg){ width=75% }
+![Mots](LDAvis02.jpg){ width=80% }
 
 
 
@@ -224,13 +225,16 @@ L'intégration dans le htlm n'étant pas facile on n'en représente qu'une illus
 
 Certains annotateurs peuvent repérer les règles grammaticales et trouver pour un mot cible ses corrélats.  Un nom commun peut être ainsi associé à des adjectifs qui le qualifient et le nuancent. C'est ainsi que le stanford NLP distingue 55 types de dépendances syntaxiques. Cette annotation peut être produite avec cleannlp. 
 
-On s'intéressera à des dépendences de qualification en optant pour la dépendence "amod" :  adjectival modifier - An adjectival modifier of an NP is any adjectival phrase that serves to modify the meaning of the NP.“Sam eats red meat”amod(meat, red) et "admod" : adverbial modifier. 
+On s'intéressera à des dépendences de qualification en optant pour les dépendences 
 
-Pour plus de détail il faut consulter le Stanford typed dependencies manual Marie-Catherine de Marneffe and Christopher D. Manning September 2008 Revised for Stanford Parser v.  1.6.2 in February 2010  on en trouvera un exposé ici [universal dependencies](http://universaldependencies.org/u/dep/).
+ * "amod" :  adjectival modifier - An adjectival modifier of an NP is any adjectival phrase that serves to modify the meaning of the NP.“Sam eats red meat”amod(meat, red) 
+ * "admod" : adverbial modifier. “Sam eats a lot of meat”amod(meat, a lot of) 
+
+Pour plus de détail il faut consulter le "Stanford typed dependencies manual" @de_marneffe_stanford_2008).  on en trouvera un exposé ici [universal dependencies](http://universaldependencies.org/u/dep/).
 
 Pour mieux comprendre le modèle LDA on peut ainsi être inciter à étudier certains des lemmes contributifs (on ne travaille plus sur le texte brut mais sur un texte filtré). Dans l'exemple suivant, on s'inspire [du code suivant](https://github.com/yanhann10/opendata_viz/tree/master/refugee). Il est [commenté ici ](https://towardsdatascience.com/analyse-public-discourse-on-refugees-with-cleannlp-9719a29ed898).
 
-On représente les qualificatifs de 4 notions qui apparaissent comme étant les plus fréquentes au travers de leur manifestation par l'usage de noms communs : le logement, son environnement, l'hôte et le séjour.
+On représente les qualificatifs de 4 notions qui apparaissent comme étant les plus fréquentes au travers de leur manifestation par l'usage de noms communs : par exemple le  restaurant, la chambre, le lagonarium (qui est l'attraction spectaculaire de cet hotel) et la piscine.
 
 
 ```{r dep01}
@@ -265,7 +269,7 @@ gd2<- ggplot() +
   geom_polygon(data = dat.gg, aes(x, y, group = id, fill=id), colour = "black", alpha = 0.6) +
   geom_text(data = data, aes(x, y, size=log(Freq), label = .), color="black") +
   theme_void() +   scale_fill_distiller(palette = "PuRd", direction = 1 ) +
-  theme(legend.position="none")+ labs(title="Qualificatifs des lemmes 'hotel' et 'chambre'")+coord_equal()
+  theme(legend.position="none")+ labs(title="Qualificatifs du lemmes 'chambre'")+coord_equal()
 
 dep<-cnlp_get_dependency(obj, get_token = TRUE)
 res <- dep %>%filter(relation == "amod")%>%filter(lemma == "lagon")
@@ -286,7 +290,7 @@ gd3<- ggplot() +
 
 #place
 dep<-cnlp_get_dependency(obj, get_token = TRUE)
-res <- dep %>%filter(relation == "amod")%>%filter(lemma == "plage")
+res <- dep %>%filter(relation == "amod")%>%filter(lemma == "piscine")
 bub<-res$lemma_target %>%table() %>%sort(decreasing = TRUE) %>%head(n = 30)%>% as.data.frame()
 # libraries library(packcircles)
 # Generate the layout
@@ -298,7 +302,7 @@ gd4<- ggplot() +
   geom_polygon(data = dat.gg, aes(x, y, group = id, fill=id), colour = "black", alpha = 0.6) +
   geom_text(data = data, aes(x, y, size=log(Freq), label = .), color="black") +
   theme_void() +   scale_fill_distiller(palette = "Blues", direction = 1 ) +
-  theme(legend.position="none")+ labs(title="Qualificatifs du lemme 'plage' ")+coord_equal()
+  theme(legend.position="none")+ labs(title="Qualificatifs du lemme 'piscine' ")+coord_equal()
 
 gd1
 gd2
@@ -346,7 +350,7 @@ mean<-round(mean(df_en$sentiment),2)
 std<-round(sd(df_en$sentiment),2)
 #histogram
 df_en$quintile<-cut(df_en$sentiment, quantile(df_en$sentiment))
-ggplot(df_en, aes(x=sentiment))+geom_histogram(binwidth=1,aes(fill=quintile))+theme_minimal()+xlim(-15,+30) +scale_fill_manual(values=Zissou)
+ggplot(df_en, aes(x=sentiment))+geom_histogram(binwidth=1,aes(fill=quintile))+theme_minimal()+xlim(-15,+30) +scale_fill_manual(values=Zissou)+ ggplot2::annotate("text", x=150, y=4.5, label= paste0("moyenne=",mean,"ecart type",std))
 ```
 
 
@@ -357,12 +361,12 @@ astuce des quintile
 
 ```{r score01 , echo = FALSE}
 r_n_s<-round(cor(df_en$nbcar, df_en$sentiment),3)
-r_n_s
+
 g24<-ggplot(df_en,aes(x=nbcar, y=sentiment))+geom_point(color="grey")+geom_smooth(method="auto")+geom_smooth(method="lm",color="darkorange")+theme_minimal() + ggplot2::annotate("text", x=800, y=30, label= paste0("r=",r_n_s))
 #score de sentiment
 df_en$sent_score<-df_en$sentiment*100/df_en$nbcar
 r_n_s<-round(cor(df_en$nbcar, df_en$sent_score),3)
-r_n_s
+
 g25<-ggplot(df_en,aes(x=nbcar, y=sent_score))+geom_point(color="grey")+geom_smooth(method="auto")+geom_smooth(method="lm",color="darkorange")+theme_minimal()+ ggplot2::annotate("text", x=800, y=4.5, label= paste0("r=",r_n_s))
 grid.arrange(g24,g25, ncol=2)
 ```
@@ -448,11 +452,12 @@ G14<-ggplot(df_en1, aes(x=positivity,y= expressivity))+geom_point(color="grey")+
 grid.arrange(G11,G12,G13,G14,ncol=2)
 
 ```
-## 7.2 La pallette des émotions
+
+## 7.2 La palette des émotions
 
 On se concentre sur les 8 facettes de l'émotion telle que conceptualisée par [Plutchik](https://positivepsychologyprogram.com/emotion-wheel/) (@plutchik_psychoevolutionary_1982)
 
-dont on reprend les definition en anglais :
+dont on reprend les définitions en anglais :
 "
  * trust goes from acceptance to admiration
  * fear goes from timidity to terror
@@ -462,6 +467,7 @@ dont on reprend les definition en anglais :
  * anger goes from annoyance to fury
  * anticipation goes from interest to vigilance
  * joy goes from serenity to ecstasy"
+ 
 et mesurée sur la base des textes par l'outil NCR élaborée par [Mohammad Saif](http://saifmohammad.com/WebPages/lexicons.html) et pour le français [voir](http://sentiment.nrc.ca/lexicons-for-research/).
 On peut raisonner en part relative des émotions dans le mesure où l'outil NCR compte les éléments probables de chacune des émotions. C'est pourquoi on recode les variables, encore une fois les textes long risquent de peser plus que les textes courts, la normalisation est nécessaire.
 
@@ -500,7 +506,7 @@ grid.arrange(g101,g102,ncol=2)
 
 ```
 
-On complète l'analyse par une typologie simple ( méthode de ward) qui fait apparaitre 4 grandes répondes émotionnelles. L'une marginale( 4) est clairement négative, une autre représente un  tiers des observations peut être qualifiée de mitigée ( une fréquence élevé de tristesse), les deux autres qui représentent un peu plus de 60% sont franchement positives se distinguant pour l'une par une forte attention et l'autre par un plus grand sentiment de confiance.
+On complète l'analyse par une typologie simple (méthode de ward) qui fait apparaitre 4 grandes répondes émotionnelles. L'une marginale( 4) est clairement négative, une autre représente un  tiers des observations peut être qualifiée de mitigée ( une fréquence élevé de tristesse), les deux autres qui représentent un peu plus de 60% sont franchement positives se distinguant pour l'une par une forte attention et l'autre par un plus grand sentiment de confiance.
 
 
 ```{r sent10b}
@@ -580,7 +586,7 @@ df_senti<-df_en$X2 %>% tokens(what = "word", remove_numbers = TRUE,
                               ngrams = 1L)
 
 senti<-tokens_lookup(df_senti, dictionary = dic_ton, exclusive = FALSE)
-head(senti,3)
+#head(senti,2)
 
 #Application du dictionnaire des sentiments: obtient l'occurence des termes positifs et des termes négatifs par commentaire
 analyseSentiments <- dfm(df_senti, dictionary = dic_ton)
@@ -607,7 +613,7 @@ summary(regnote)
 ```
 
 
-# 9. Analyse chronologique
+# 8. Analyse chronologique
 
 Il s'agit ici d'examiner l'évolution de nos indicateurs de sentiments. On se limite à la période postérieure à 2009 pour une question de densité de contributions. On en profite pour observer la convergence des indicateurs produits à partir des deux dictionnaires FEEL et FrLSD. Ils évoluent bien ensemble, peut-être moins en terme de négativité où une lègère divergence semble se manifester.
 
@@ -639,14 +645,14 @@ ggplot(long2,aes(x=year,y=value,group=variable))+geom_line(aes(color=variable),s
 
 ```
 
-# 10. modèle naives bayes pour prédire la note
+# 9. Un modèle naives bayes pour prédire la note
 
-On utilise un modèle très simple. Le plus basic qu'il soit. 
+On utilise un modèle très simple. Le plus basique qui soit. 
 
 #https://fderyckel.github.io/2016-12-07-Texts_Classification_in_R/
 
 
-## 10.1 Constitution du corpus
+## 9.1 Constitution du corpus
 
 ```{r cars}
 library(tm)
@@ -658,7 +664,7 @@ library(caret)
 
 library(readr)
 #reviews <- read_csv("resultat.csv", col_names = FALSE)
-head(reviews,7)
+head(reviews,1)
 
 corpus <- Corpus(VectorSource(df_en$X2))
 # Inspect the corpus
@@ -673,7 +679,7 @@ corpus.clean <- corpus %>%
 
 ```
 
-## 10.2 fabriquer le DTM
+## 9.2 fabriquer le DTM
 
 On constitue deux sous corpus 60% et 40% pour l'entrainement et le test et on considère les bigrams.
 
@@ -703,7 +709,7 @@ fivefreq <- findFreqTerms(dtm.train, 20)
 length((fivefreq))
 ```
 
-## 10.3 selectioner les termes les plus fréquents to build the DTM
+## 9.3 selectioner les termes les plus fréquents to build the DTM
 
 et recoder les fréquences en variables binaires
 Function to convert the word frequencies to yes (presence) and no (absence) labels
@@ -730,7 +736,7 @@ trainNB <- apply(dtm.train.nb, 2, convert_count)
 testNB <- apply(dtm.test.nb, 2, convert_count)
 ```
 
-## 10.4 Le modèle
+## 9.4 Le modèle
 
 On utilise ici la fonction naiveBayes du package e7000 mais d'autres solutions sont possibles. Un paramètre doit cependant être fixé, la valeur de la constante de lissage de Laplace. On trouvera ici et là les explications nécessaires sur son rôle et son choix.
 
@@ -755,7 +761,7 @@ predC <- predict(classifier,testNB,type = "class")
 ```
 
 
-## 10.5 Evaluation du modèle
+## 9.5 Evaluation du modèle
 
 Pour évaluer le modèle on emploie la fonction confusion matrix mais aussi le package ROCR qui fournit tous les indicateurs habituels du machine learning. On évalue d'abord le modèle. La précision est de 0,782 ( et de 0.68 quand elle est équilibrée), elle doit être comparé à la prévalence qui est de 84% (). La précision (sensitivity) est de  .90  et le recall de 0,83 (specificity) le F est donc de 0.86 et l'auc de 0.78. le taux de detection est de 0,69. le coefficient kappa peut être qualifié de correct (fair) ce qui indique que la prediction tout en étant sensible est peu précise. 
 
@@ -797,7 +803,7 @@ Un résultat accessoire est l'identification des termes qui contribuent à la pr
 
 On y voit clairement les termes discriminants : en positif, la piscine, le personnel, la vue et des adjectifs hyperbolique. En négatif le prix.... Il y a là matière à construire un nouvel index de sentiment.....
 
-```{r eval2}
+```{r eval2, echo=TRUE, result=FALSE}
 
 #extraction des probabilité conditionnelle (p=W/positif)
 classifier$tables$ambiance["1","Yes"]         # p(dept.A|admitted)
@@ -809,12 +815,17 @@ for(i in classifier$tables){
   output[k,1]<-i["1","Yes"]
   output[k,2]<-i["0","Yes"]}
 output<-as.data.frame(output)
+```
+
+
+```{r eval3}
 
 df <- as.data.frame(rownames((as.data.frame(t(trainNB)))))
 postprob<-cbind(df,output)
 postprob$delta<-postprob$V1-postprob$V2
 postprob$Name<-postprob[,1]
-ggplot(postprob, aes(x=V1,y=delta))+geom_point(col="grey")+ geom_text(aes(label=ifelse(abs(delta)>0.05,as.character(Name),'')),size =2.5,hjust=0,vjust=0)+scale_x_log10()+theme_minimal()+labs(x="Probabilité a posteriori que le termes soit associé à une bonne note")
+ggplot(postprob, aes(x=V1,y=delta))+geom_point(col="grey")+ geom_text(aes(label=ifelse(abs(delta)>0.05,as.character(Name),'')),size =2.5,hjust=0,vjust=0)+scale_x_log10()+theme_minimal()+labs(x="Probabilité a posteriori que le terme soit associé à une bonne note")
+
 ```
 
 
