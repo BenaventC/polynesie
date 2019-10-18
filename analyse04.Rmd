@@ -1,0 +1,1438 @@
+---
+title: "Les 5 V des avis - Trip Advisor en Polynésie"
+author: "CB"
+date: "17 septembre 2019"
+output:
+  word_document: default
+  html_document:
+    df_print: paged
+---
+<style type="text/css">
+body, td {
+   font-size: 14px;
+}
+code.r{
+  font-size: 10px;
+}
+h1{
+  font-size: 24px;
+}
+h2{
+  font-size: 18px;
+}
+pre {
+  font-size: 11px
+}
+</style>
+
+```{r setup,include=FALSE}
+knitr::opts_chunk$set(include=TRUE,echo = TRUE, warning=FALSE,  message=FALSE, cache=TRUE,fig.width = 8)
+library(tidyverse)
+library(dplyr)
+library(readr)
+#library(Rcmdr)
+library(cleanNLP) 
+library(gridExtra)
+library(text2vec)
+library(reshape2)
+library(ineq)
+library(gglorenz)
+library(quanteda)
+library("quanteda.dictionaries")
+library(knitr)
+library(sjstats)
+library(kableExtra)
+library(flextable)
+library(officer)
+library(wesanderson)
+library(lubridate)
+library(ineq)
+library(gglorenz)
+
+Zissou <- wes_palette(5, name = "Zissou1", type = "continuous")   #pour l'intensite
+darj <- wes_palette(4, name = "Darjeeling1", type = "discrete")   #pour l'intensite
+
+comment_W <- read_csv("commentaire.csv")
+hotels_ref <- read_delim("hotels_ref_2.tsv", 
+    "\t", escape_double = FALSE, trim_ws = TRUE)
+```
+L'objet de cette étude est de comparer la production langagière des contributeurs de la plateforme TripAdvisor. On y examine l'ensemble des avis  disponibles en français sur la quasi totalité des hôtels de polynésie et produits aux cours des quatre dernières années.On explore de manière systématique l'influence de l'environnement ( les iles et le temps), du type d'hôtel (nombre de chambre et prix), de l'expérience rédactionnelle des contributeurs et de leur jugement déclaré (notes) sur un certain nombre de caractéristique du texte des avis en particulier leur volumétrie et sa distribition, la valeur par les compétences langagières (lisibilité et diversité lexicales), la valence du sentiment éprouvé, le vecu de l'expérience aux travers de marqueurs sémantiques et enfin de l'expérience éprouvée et  enfin les variantes thématiques qui transpirent des textes.  
+
+L'hypothèse centrale est que les hôtels en discriminant les clients sur un critère de relative richesse induisent des contenus variables en quantité et en qualité. 
+
+# Analyse quantitative des commentaires
+
+Il s'agit d'établir les statistiques de base et d'examiner la distribution du volume de texte produit.
+
+L'enchainement des annotations et leurs propriétés
+
+## Volume des avis
+
+Il s'agit d'évaluer la distribution "physique"du corpus de texte défini comme l'ensemble des commentaires tripadvisor de la version française publiés à partir de juin 2015. On obtient 26467 textes. ```dim(comment_X)```
+
+```{r vol1}
+print("nombre total de documents")
+dim(comment_W)
+#filtrage sur date et sur comment_Ws notés
+d<- as.Date("2015-06-30", format = "%Y-%m-%d")
+comment_W<-comment_W %>% filter(Date>d)  %>% filter(Note>0)
+print("nombre de documents (depuis 4 ans)")
+
+dim(comment_W)
+```
+
+```{r vol1b}
+
+#on enrichit avec les données hôtels
+comment_W<-left_join(comment_W, hotels_ref)
+
+comment_W$destination[comment_W$Ile=="Avatoru"]<-"Tuamotu"
+comment_W$destination[comment_W$Ile=="Bora Bora"]<-"Bora Bora"
+comment_W$destination[comment_W$Ile=="Hiva hoa"]<-"Marquises"
+comment_W$destination[comment_W$Ile=="Hiva Oa"]<-"Marquises"
+comment_W$destination[comment_W$Ile=="Huahine"]<-"Iles vent"
+comment_W$destination[comment_W$Ile=="Maupiti"]<-"Iles vent"
+comment_W$destination[comment_W$Ile=="Tahaa"]<-"Iles vent"
+comment_W$destination[comment_W$Ile=="Raiatea"]<-"Iles vent"
+comment_W$destination[comment_W$Ile=="Moorea"]<-"Moorea"
+comment_W$destination[comment_W$Ile=="Tahiti"]<-"Tahiti"
+comment_W$destination[comment_W$Ile=="Tetiaroa"]<-"Tahiti"
+comment_W$destination[comment_W$Ile=="Nuku Hiva"]<-"Marquises"
+comment_W$destination[comment_W$Ile=="Raivavae"]<-"Australes"
+comment_W$destination[comment_W$Ile=="Rangiroa"]<-"Tuamotu"
+comment_W$destination[comment_W$Ile=="Rurutu"]<-"Australes"
+comment_W$destination[comment_W$Ile=="Tikehau"]<-"Tuamotu"
+
+comment_W$destination<- as.factor(comment_W$destination)
+comment_W$categorie<- as.factor(comment_W$categorie)
+
+comment_W$chambres<-as.numeric(comment_W$chambres)
+
+comment_W$Taille_hotel[comment_W$chambres<9]<-" 1-5 chambres"
+comment_W$Taille_hotel[comment_W$chambres>8 & comment_W$chambres<16]<-" 6-15 chambres"
+comment_W$Taille_hotel[comment_W$chambres>15 & comment_W$chambres<51]<-"15-50 chambres"
+comment_W$Taille_hotel[comment_W$chambres>50 & comment_W$chambres<121]<-"50-80 chambres"
+comment_W$Taille_hotel[comment_W$chambres>120]<-"80 et plus chambres"
+
+
+comment_W$prix_classe[comment_W$prix<10000]<-"<10 000"
+comment_W$prix_classe[comment_W$prix>9999 & comment_W$prix<15000]<-"<15 000"
+comment_W$prix_classe[comment_W$prix>14999 & comment_W$prix<25000]<-"<25 000"
+comment_W$prix_classe[comment_W$prix>24999 & comment_W$prix<40000]<-"<40 000"
+comment_W$prix_classe[comment_W$prix>39999 ]<-">40 000"
+
+library(AMR)
+comment_W %>% freq(Taille_hotel)  
+comment_W %>% freq(prix_classe)  
+comment_W %>% freq(destination)
+
+library(FactoMineR)
+AFCM<-subset(comment_W, select=c("prix_classe","Taille_hotel","categorie"))
+AFCM<- na.omit(AFCM)
+MCA(AFCM, ncp = 3, graph = TRUE,method = "Burt")
+
+
+
+```
+## Distribution du nombre d'avis entre les hôtels
+
+On examine la répartition du nombre d'avis produit entre les hôtels. On s'aperçoit d'une distribution très inégales : une dizaine d'hôtels concentrent des milliers d'avis quand le reste se contentent de quelques dizaines. La courbe de lorenz confirme l'observation : 75% des commentaires sont produit par 12,5% des hôtels.
+
+```{r quanti02, include=TRUE}
+#on calcule le nombre d'avis par logement
+comment_W$Hotel<-as.factor(comment_W$Hotel)
+
+Avis<-comment_W %>% mutate(n=1) %>% group_by(Hotel) %>% summarise(nb_avis = sum(n))
+
+mean<-round(mean(Avis$nb_avis),1)
+median<-median(Avis$nb_avis)
+max<- max(Avis$nb_avis)
+g05a<-ggplot(Avis, aes(x=nb_avis))+geom_histogram(binwidth=20,fill="coral3")+theme_minimal()+xlim(0,2500)+ylim(0,25)+annotate("text", x=1000, y=20, size=3,label= paste0("moyenne=",mean,"- médiane=", median,"- max=",max))+labs(x = "nombre d'avis", y = "Fréquences (nb d'hôtels)", title = "Distribution du nombre d'avis par hôtel", caption = "")
+
+#on analyse la concentration
+library(ineq)
+library(gglorenz)
+gini<-round(ineq(Avis$nb_avis,type = c("Gini")),2)
+
+g05b<-Avis %>%
+    ggplot(aes(nb_avis)) +
+    stat_lorenz(desc = TRUE,size=1.2,color="darkred") +
+    coord_fixed() +
+    geom_abline(linetype = "dashed") +
+    theme_minimal() +labs(x = "Part cumulée des hôtels",
+         y = "Part cumulée des avis",
+         title = "Concentration des avis",
+         caption = "") +
+  annotate("text", x=.35, y=.6, size=3,label= paste0("indice de Gini=",gini))
+grid.arrange(g05a,g05b,ncol=2)
+
+```
+
+##la longueur des avis
+
+Les avis ne sont pas de la même longueur (en nombre de caractères) et varient de 193 caractères à 13637 caractères avec une longueur médiane de 503. le volume total représente donc 18,49 millions de caractères, soit l'équivalent de 10 000 pages.
+
+```{r vol2}
+comment_W$nbcar<-nchar(comment_W$Commetaire)
+mean <-round(mean(comment_W$nbcar),0)
+median <-median(comment_W$nbcar)
+print("nombre de caractères median")
+median
+min<- min(comment_W$nbcar)
+print("nombre de caractères minimum")
+min
+max<- max(comment_W$nbcar)
+print("nombre de caractères maximum")
+max
+
+sum<- sum(comment_W$nbcar)/1000
+print("nombre total de caractères ( en kilo)")
+
+sum
+```
+
+Une analyse de concentration montre que 25% des  avis les plus longs représentent 50% du volume de texte avec un indice de gini de 0.39 qui indique une concentration modérée.
+ 
+```{r vol4}
+g00a<- comment_W  %>% ggplot(aes(x=nbcar))+geom_histogram(binwidth=50,fill="brown")+theme_minimal()+xlim(0,4000)+ylim(0,3500)+annotate("text", x=2000, y=2900, size=3,label= paste0("moy=",mean," - médiane", median," - max=",max))+labs(x = "nombre de caractéres", y = "Fréquence")
+
+#on analyse la concentration
+#library(ineq)
+#library(gglorenz)
+gini<-round(ineq(comment_W$nbcar,type = c("Gini")),2)
+
+g00b<-comment_W %>%
+    ggplot(aes(nbcar)) +
+    stat_lorenz(desc = TRUE,size=1.2,color="darkred") +
+    coord_fixed() +
+    geom_abline(linetype = "dashed") +
+    theme_minimal() +labs(x = "Part cumulée des commentaires",
+         y = "Part cumulée du texte",
+         title = "Concentration du volume de texte",
+         caption = "") +
+  annotate("text", x=.35, y=.6, size=3,label= paste0("indice de Gini=",gini))
+grid.arrange(g00a,g00b,ncol=2)
+
+```
+
+la corrélation entre le nombre d'avis par hôtel et la taille moyenne des avis est faible <0.3 mais significative. 
+Les grands hôtels ont aussi les commentaires les plus longs. On passe de 600 caractères à près de 800 pour les hôtels les plus commentés.
+
+Le nombre de avis par chambre , une manière de saisir l'intensité du flux d'avis généré dans un hotel n'est pas corrélé à la taille de l'hotel, et cette corrélation était significative (de l'ordre de moins de -0,2), elle montre que les petits hotels sont plus productifs. ( est-ce qu'ils concentrent le plus d avis négatifs ?)
+
+```{r vol5}
+comment_W$nb_avis<-1
+nb_comment_p_hotel<- aggregate(cbind(nbcar,nb_avis) ~ Hotel, data = comment_W, FUN= "sum")
+nb_ch_p_hotel<- aggregate(chambres ~ Hotel, data = comment_W, FUN= "mean")
+
+nb_comment_p_hotel<-merge(nb_comment_p_hotel,nb_ch_p_hotel)
+
+#longueur par avis
+nb_comment_p_hotel$nbcar_moy<-nb_comment_p_hotel$nbcar/nb_comment_p_hotel$nb_avis
+
+g00c<- ggplot(nb_comment_p_hotel,aes(x=nb_avis, y=nbcar_moy))+geom_point()+theme_minimal()+scale_x_log10()+geom_smooth(method = "lm")+geom_smooth(method = "loess",color="orange2")
+
+m <- lm(log(nbcar_moy) ~ log(nb_avis), data = nb_comment_p_hotel)
+summary(m)
+
+eq <- substitute(italic(y) == a + b %.% italic(nb_avis)*","~~italic(r)^2~"="~r2,
+                list(        a = format(coef(m)[1], digits = 4),
+                               b = format(coef(m)[2], digits = 2),
+                               r2 = format(summary(m)$r.squared, digits = 3)))
+
+dftext <- data.frame(nb_avis = 20, nbcar_moy = 1500, eq = as.character(as.expression(eq)))
+
+g00d<-g00c+ geom_text(aes(label = eq), data = dftext, parse = TRUE)
+g00d 
+
+```
+
+
+```{r vol5b}
+# avis par chambre et nombre de chambre
+#nbre d'avis par chambres
+nb_comment_p_hotel$avis_p_ch<-nb_comment_p_hotel$nb_avis/nb_comment_p_hotel$chambres
+
+g00e<- ggplot(nb_comment_p_hotel,aes(x=chambres, y=avis_p_ch))+geom_point()+theme_minimal()+scale_x_log10()+geom_smooth(method = "lm")+geom_smooth(method = "loess",color="orange2")+scale_y_log10()
+
+m <- lm(log(avis_p_ch) ~ log(chambres), data = nb_comment_p_hotel)
+summary(m)
+
+eq <- substitute(italic(y) == a + b %.% italic(nb_avis)*","~~italic(r)^2~"="~r2,
+                list(        a = format(coef(m)[1], digits = 4),
+                               b = format(coef(m)[2], digits = 2),
+                               r2 = format(summary(m)$r.squared, digits = 3)))
+
+dftext <- data.frame(avis_p_ch = 50, chambres = 100, eq = as.character(as.expression(eq)))
+
+g00f<-g00e+ geom_text(aes(label = eq), data = dftext, parse = TRUE)
+g00f
+
+density1<-lm(log(avis_p_ch)~log(chambres),data=nb_comment_p_hotel)
+summary(density1)
+density2<-lm(nbcar_moy~log(chambres),data=nb_comment_p_hotel)
+summary(density2)
+
+```
+##  les contributions des hôtels
+ 
+
+```{r hotel01}
+comment_W$n<-1
+hotel01<-aggregate(n~nom,comment_W, FUN="sum")
+hotel02<-aggregate(nbcar~nom,comment_W, FUN="sum")
+hotel03<-aggregate(nbcar~nom,data=comment_W, FUN="mean") %>% mutate(nbcar_mean=nbcar) %>% select(-nbcar)
+Hotela<-merge(hotel01,hotel02)
+Hotelb<-merge(Hotela, hotel03) %>% filter(n>100)
+
+g01a<-ggplot(Hotelb,aes(x=reorder(nom,n),y=n))+geom_bar(stat="identity",fill="coral3")+coord_flip()+theme_minimal()+labs(x = "Hotels (par nombre d'avis)", y = "nombre d'avis", title = "", caption = "")+theme(axis.text=element_text(size=7))
+
+g01b<-ggplot(Hotelb,aes(x=reorder(nom,n),y=nbcar))+geom_bar(stat="identity",fill="coral3")+coord_flip()+theme_minimal()+labs(x = "Hotels (par nombre d'avis)", y = "nombre total de caractères", title = "", caption = "")+theme(axis.text=element_text(size=7))
+
+g01a 
+g01b
+```
+
+## Les "scripteurs"
+
+Les auteurs d'avis, nous les dénommerons "scripteurs", peuvent produire plus d'un avis, d'autant plus que pour la destination étudiées les séjours se déroulent souvent dans différents établissements. On s'attend qu'en plus de commentaires uniques, nous ayons des "scripteurs" répéteurs. C'est bien ce que les données confirment. Les 26000 commentaires sont produit par 11000 comptes uniques, 5000 d'entre eux n'ont produit qu'un avis, 6000 en ayant produit au moins deux. Les scripteurs occasionnels cependant représent 3,5 millions de caractère donc moins d'un quart de toute la production.
+
+Trip advisor agrège dont moins des commentaires épars et occasionnel qu'une production répétée de quelques milliers de touristes. Sachant que la population de touriste correspondant à 60 000 francophone annuels, les contributeurs représentent 6 000/240 000 = 2,5% de la population totale des toruistes. On s'aperçoit que le nombre d'avis produit par compte est indépendant de la taille des avis.
+
+```{r user01}
+comment_W$nb_comment<-1
+nb_comment_p_user<- aggregate(cbind(nbcar,nb_comment) ~ Username, data = comment_W, FUN= "sum")
+g02a<-ggplot(nb_comment_p_user,aes(x=nb_comment))+geom_histogram(fill="Orange3",binwidth = 1)+theme_minimal()
+dim(nb_comment_p_user)
+
+nb_comment_p_user2<-aggregate(nbcar~nb_comment,nb_comment_p_user, FUN="sum")
+g02b<-ggplot(nb_comment_p_user2,aes(x=nb_comment,y=nbcar))+geom_bar(stat="identity",fill="Orange2")+theme_minimal()+labs(x="nombre de commentaires par scripteur")
+
+grid.arrange(g02a, g02b, ncol=2)
+
+nb_comment_p_user$taille_avis<-nb_comment_p_user$nbcar/nb_comment_p_user$nb_comment
+g02c<-ggplot(nb_comment_p_user, aes(x=nb_comment,y=log(taille_avis)))+geom_point()+geom_smooth(methode="lm")+theme_minimal()+labs(x="nombre de commentaires par scripteur")
+g02c
+comment_W<-left_join(comment_W, nb_comment_p_user,by ="Username") %>%select(-nb_comment.x)%>%mutate(ncar_user=nbcar.y/nb_comment.y)
+
+comment_W$redacteur[comment_W$nb_comment.y<2]<-"1 avis"
+comment_W$redacteur[comment_W$nb_comment.y>1 & comment_W$nb_comment.y<4]<-"2 ou 3 avis"
+comment_W$redacteur[comment_W$nb_comment.y>3 & comment_W$nb_comment.y<9]<-"4 à 8 avis"
+comment_W$redacteur[comment_W$nb_comment.y>8 ]<-"9 et plus avis"
+
+
+```
+##Evolution de la production
+
+On remarquera la saisonnalité, mais aussi une chute qui doit pouvoir être attribué au politiques de detections de fake. Une étude des initiative doit être menée. 
+
+```{r hotel03}
+
+comment_W$Month_Yr<-as.POSIXct(comment_W$Date) #un format qu'aime lubridate
+g<-comment_W %>% 
+  ggplot(aes(Month_Yr)) + 
+  geom_freqpoly(binwidth = 604800) + labs(title = "Nombre d'avis par semaine",caption = "Tripadvisor polynésie",x="temps",y="nb d'avis") +theme_minimal()
+g
+
+```
+
+##Volume en unités et nombre de caractères
+
+On commence par définir nos critères de segmentation
+
+```{r hotel02}
+comment_W$chambres<-as.numeric(comment_W$chambres)
+ggplot(comment_W,aes(chambres))+geom_histogram(binwidth=5) +theme_minimal()
+comment_W$Taille_hotel[comment_W$chambres<9]<-" 1-5 chambres"
+comment_W$Taille_hotel[comment_W$chambres>8 & comment_W$chambres<16]<-" 6-15 chambres"
+comment_W$Taille_hotel[comment_W$chambres>15 & comment_W$chambres<51]<-"15-50 chambres"
+comment_W$Taille_hotel[comment_W$chambres>50 & comment_W$chambres<121]<-"50-80 chambres"
+comment_W$Taille_hotel[comment_W$chambres>120]<-"80 et plus chambres"
+
+comment_W$redacteur[comment_W$nb_comment.y<2]<-"1 avis"
+comment_W$redacteur[comment_W$nb_comment.y>1 & comment_W$nb_comment.y<4]<-"2 ou 3 avis"
+comment_W$redacteur[comment_W$nb_comment.y>3 & comment_W$nb_comment.y<9]<-"4 à 8 avis"
+comment_W$redacteur[comment_W$nb_comment.y>8 ]<-"9 et plus avis"
+
+
+comment_W$prix_classe[comment_W$prix<10000]<-"<10 000"
+comment_W$prix_classe[comment_W$prix>9999 & comment_W$prix<15000]<-"<15 000"
+comment_W$prix_classe[comment_W$prix>14999 & comment_W$prix<25000]<-"<25 000"
+comment_W$prix_classe[comment_W$prix>24999 & comment_W$prix<40000]<-"<40 000"
+comment_W$prix_classe[comment_W$prix>39999 ]<-">40 000"
+
+library(AMR)
+comment_W %>% freq(Taille_hotel)  
+comment_W %>% freq(prix_classe)  
+comment_W %>% freq(redacteur)  
+comment_W %>% freq(destination)
+
+library(FactoMineR)
+AFCM<-subset(comment_W, select=c("prix_classe","Taille_hotel","categorie"))
+AFCM<- na.omit(AFCM)
+MCA(AFCM, ncp = 2, graph = TRUE)
+
+```
+
+
+##  Notes et  longueur des commentaires
+
+Une relation spectaculaire se manifeste : les avis les moins bien noté sont plus longs de plus de 40% que les avis bien notés. L'insatisfaction rend logorique. 
+
+```{r notes}
+
+g04b<-ggplot(comment_W,aes(x=Note))+geom_histogram(fill="Orange4",binwidth = 1)+theme_minimal()+labs(x="Note",y = "Fréquence",title = "Distribution des notes")
+g04b
+comment_W$note_avis<-as.factor(comment_W$Note)
+foo<- aggregate(cbind(nbcar.x)~note_avis,data=comment_W,FUN="median")
+foo<-melt(foo)
+g04c<-ggplot(foo, aes(x=note_avis, y=value,group=variable))+geom_line(aes(color=variable),size=2)+theme_minimal()+scale_color_manual(values=wes_palette(n=4, name="Zissou1"))+labs(x="Note",y = "Longueur de l'avis (en carac.)",title = "Longueur médiane des avis", caption = "")+theme(legend.position = "none")+ylim(300,800)
+grid.arrange(g04b,g04c, ncol=2)
+
+
+```
+
+On peut chercher à modéliser la taille des avis. Un modèle à composantes d'erreur pour prendre en compte 
+
+```{r vol3}
+g04a<- comment_W %>% ggplot(aes(x=Note,y=nbcar.x ))+geom_point(position ="jitter")+theme_minimal()+geom_smooth(method='lm')+geom_smooth(method='loess')+scale_y_log10()
+g04a
+library(lme4)
+reg00<-lmer(nbcar.x~Note+(1 | Hotel), data=comment_W)
+reg01<-lmer(nbcar.x~Note+log(prix)+nb_comment.y+Taille_hotel+(1 | Hotel), data=comment_W)
+reg02<-lmer(nbcar.x~Note+log(prix)+nb_comment.y+Taille_hotel+destination+(1 | Hotel), data=comment_W)
+
+library(stargazer)
+stargazer(reg00,reg01,reg02, type="text")
+
+```
+
+
+
+## Lisibilité
+
+La lisibilité est une vieille question  L. A. Sherman found that the English sentence was getting shorter. In Elizabethan times, the average sentence was 50 words long. In his own time, it was 23 words long. Sherman's work established that: Literature is a subject for statistical analysis, Shorter sentences and concrete terms help people to make sense of what is written. Over  time, text becomes easier if it is more like speech.
+
+Dans une étude de Marc hug d'une centaine article du monde, le nombre de syllabes moyen est de 3,5 syllabes (phonémes) et de 19 mots par phrase. Ici les moyennes sont beaucoups plus faible avec 15 mots et 1,5 syllabes indiquant un niveau de language bien inférieur au journal le Monde. Reste à apprecier l'importance de l'écart. 
+
+
+In 1943, Rudolf Flesch published his PhD dissertation, Marks of a Readable Style, which included a readability formula to predict the difficulty of adult reading material. 
+
+Flesch-Kincaid Readability Score (Flesch and Kincaid 1975).0.39 * ASL + 11.8 * (NSy /Nw) - 15.59
+https://en.wikipedia.org/wiki/Readability
+https://rdrr.io/cran/quanteda/man/textstat_readability.html
+
+On le garde comme historique et on ajoute le ARI et le coleman.Liau Grade qui donne le niveau d'âge à partir duquel le contenu peu être lu.  
+
+
+
+```{r sent14}
+#library(quanteda)
+Corpus<-corpus(comment_W,text_field="Commetaire") #corpus de base qui sera filtré
+
+read<- textstat_readability(Corpus, measure = c("ARI","Flesch.Kincaid", "Coleman.Liau.ECP","Coleman.Liau.grade", "meanSentenceLength", "meanWordSyllables"),  remove_hyphens = TRUE,  min_sentence_length =  000, max_sentence_length = 10000,  intermediate = FALSE)
+
+comment_W<-cbind(comment_W,read) 
+
+g06a<-ggplot(data = comment_W, aes(x=Coleman.Liau.grade))+geom_histogram(fill="grey")+theme_minimal()
+g06b<-ggplot(data = comment_W, aes(x=ARI))+geom_histogram(fill="grey")+theme_minimal()+xlim(-10,50)
+g06c<-ggplot(data = comment_W, aes(x=meanWordSyllables))+geom_histogram(fill="grey")+theme_minimal()+xlim(0,3)
+g06d<-ggplot(data = comment_W, aes(x=meanSentenceLength))+geom_histogram(fill="grey")+theme_minimal()+xlim(0,50)
+grid.arrange(g06a,g06b,g06c,g06d,nrow=2) #utilise gridextra
+```
+
+Si on examine les correlations on s'apercoit
+1) que la longueur des phrase determine largement le ari et le FK
+2) en revanche le nombre de syllabes est mieux lié au CLG
+3) les mesures sont insensibles à la longueur des avis. Court ou long ils sont autant lisibles. Par conséquent les commentaires négatifs, plus long ne sont pas moins lisibles que les avis laudateurs. 
+4) l'ARI et FK sont redondant , on ne garde que le ARI qui semble est plus dépendante à la complexité grammaticale (longueur des phrases)
+5) le CLG est assez lié aux deux autres mais garde une indépendance, il mesure plus la simplicité/complexité du vocabulaire.
+
+```{r sent14d}
+
+M<-subset(comment_W, select=c(meanSentenceLength, meanWordSyllables,nbcar.x,ARI,Coleman.Liau.grade,Flesch.Kincaid))
+M <- cor(M)
+M
+library(corrplot)
+corrplot.mixed(M)
+
+```
+
+##  Diversité lexicale 
+
+TTR le plus simple mais sensible mais la longueur, le CTTR corrige, le maas aussi plus moderne avec herdan corrige en principe mieux ( ref :).
+
+```{r divlex}
+#library(quanteda)
+toks <- tokens(Corpus, what="word",remove_punct = TRUE,remove_numbers = TRUE,
+  remove_symbols = TRUE, remove_separators = TRUE,
+  remove_twitter = TRUE, remove_hyphens = TRUE, remove_url = TRUE,
+  ngrams = 1, skip = 0L, concatenator = "_") 
+toks<- tokens_remove(toks, stopwords('french'), valuetype = 'fixed', padding = TRUE)
+
+#dfmlex<-dfm(toks, tolower = TRUE,stem=TRUE)
+lexdiv <- textstat_lexdiv(toks,measure = c("TTR","C","Maas"), MATTR_window = 20L) 
+
+comment_X<-comment_W %>% select(Hotel,Username,Titre,Commetaire,Note,note_avis,prix,chambres,Taille_hotel,prix_classe,destination,redacteur,nb_comment.y,nbcar.x, ARI,Coleman.Liau.grade,meanSentenceLength,meanWordSyllables) 
+
+comment_X<-cbind(comment_X,lexdiv)
+```
+
+L'analyse des corrélation montre que
+1) la longueur des avis est lié négativement au TTR et au maas, ce qui correspond à la critique de ces indices qui ne peuvent rendre comparables des textes de longueur très différentes.
+2) on note que le TTR est aussi fortement lié au nombre de syllabes par mots, ce qui est logique dans la mesure où les mots les plus longs sont aussi les plus rares ( les plus fréquents et répétés sont les déterminant (ce), les coordination ( où, ou, et)).
+3) le C est lié au mass, independant de la longueur du texte, sensible à la longueur des mots. Il semble être l'indicateur le plus appropriés.
+
+```{r divlexb}
+
+g08a<-ggplot(comment_X,aes(x=Maas))+geom_histogram()+theme_minimal()
+g08b<-ggplot(comment_X,aes(x=C))+geom_histogram()+theme_minimal()
+g08c<-ggplot(comment_X,aes(x=TTR))+geom_histogram()+theme_minimal()
+
+grid.arrange(g08c,g08b,g08a,ncol=3) #utilise gridextra
+
+M<-subset(comment_X, select=c(nbcar.x,meanSentenceLength, meanWordSyllables,TTR,Maas,C))
+M <- cor(M)
+M
+corrplot.mixed(M)
+
+```
+La lisibilité est lié positivement à la diversité lexicale. L'usage de terme précis contribue sans doute à rendre le texte plus clairs, un texte simple favorise l'usage de terme précis. 
+
+```{r sent14c}
+
+#C,K, Maas,positivity,negativity, expressivity,sent_score
+M<-subset(comment_X, select=c(nbcar.x,ARI,Coleman.Liau.grade,C))
+M <- cor(M)
+M
+library(corrplot)
+corrplot.mixed(M)
+
+```
+
+## Sentiment
+
+### La distribution du sentiment : NRC
+
+On utilise le package [syuzhet](https://www.rdocumentation.org/packages/syuzhet/versions/1.0.4) et en particulier le dictionnaire  "nrc" developpé et traduit par @mohammad_crowdsourcing_2013 ( Index Feel)
+
+```{r sent02b, echo=TRUE}
+library(syuzhet)             #analyse du sentimeent
+
+#paramétres
+method <- "nrc"
+lang <- "french"
+phrase<-as.character(paste0(comment_W$Titre,". ",comment_W$Commetaire))
+#extraction
+my_text_values_french<- get_sentiment(phrase, method=method, language=lang)
+```
+
+Le sentiment est globalement plutét positif, méme si une fraction  des contributions présentent des valeurs négatives. La variance est relativement élevée, ce qui est le signe d'une certaine sensibilité. Il se distribue plutét normalement au moins de maniére symétrique.
+
+```{r sent03}
+
+#ajout de la colonne sentiment au tableau de données des contributions:
+sent<-as.data.frame(my_text_values_french)
+sent$sentiment<-as.numeric(sent$my_text_values_french)
+
+comment_X<-cbind(comment_X,sent)
+#statistiques 
+s_mean<-round(mean(comment_X$sentiment),2)
+s_std<-round(sd(comment_X$sentiment),2)
+#histogram
+comment_X$quintile<-cut(comment_X$sentiment, breaks=c(-15,0,25))
+ggplot(comment_X, aes(x=sentiment))+geom_histogram(binwidth=1,aes(fill=quintile))+theme_minimal()+xlim(-15,+30) +scale_fill_manual(values=Zissou)+ ggplot2::annotate("text", x=150, y=4.5, label= paste0("moyenne=",s_mean,"ecart type",s_std))
+
+```
+
+
+Mais Un indicateur dépendant de la longueur du texte
+
+En corrélant le nombre de caractéres et le score primaire de sentiment une corrélation nette apparait, elle est de l'ordre de 0.56, elle s'atténue quand la taille du texte déapsse les 700 caractéres. Quand on corréle au score de sentiment standardisé ( on divise par 500, la mediane de la longueur des texte), c'est une relation inverse qui apparait, méme si elle est moins forte  ( r= 0.26) , plus le texte est long est plus il est neutre, mais prudence, neutre en moyenne, pas forcément en qualité d'expression.
+On s'aprrçoit aussi que la note est faiblement corrélée avec le sentiment. S'il vont dans le même sens, c'est avec une grande variations. Soit les notes ne dise pas ce que les gens ressentent, soit la mesure du sentiment est imparfaite.
+
+```{r score01 , echo = FALSE}
+r_n_s<-round(cor(comment_X$nbcar.x, comment_X$sentiment),3)
+
+g24a<-ggplot(comment_X,aes(x=nbcar.x, y=sentiment))+geom_point(color="grey")+geom_smooth(method="auto")+geom_smooth(method="lm",color="darkorange")+theme_minimal() + ggplot2::annotate("text", x=800, y=30, label= paste0("r=",r_n_s))
+#score de sentiment: 
+comment_X$sent_score<-comment_X$sentiment*500/comment_X$nbcar.x
+r_n_s<-round(cor(comment_X$nbcar.x, comment_X$sent_score),3)
+
+g24b<-ggplot(comment_X,aes(x=nbcar.x, y=sent_score))+geom_point(color="grey")+geom_smooth(method="auto")+geom_smooth(method="lm",color="darkorange")+theme_minimal()+ ggplot2::annotate("text", x=800, y=1, label= paste0("r=",r_n_s))+scale_x_log10()
+
+grid.arrange(g24a,g24b, ncol=2)
+
+g24c<-ggplot(comment_X,aes(x=Note, y=sent_score))+geom_point(color="grey")+geom_smooth(method="gam",color="darkorange")+theme_minimal()+ ggplot2::annotate("text", x=5, y=1, label= paste0("r=",r_n_s))+geom_point(position ="jitter")+theme_minimal()+geom_smooth(method='lm')+geom_smooth(method='loess')
+g24c
+```
+
+La transformation opérée montre une relation linéaire claire dans le segment [-10,10], au-delé le score de sentiment devient invariant avec le grand nombre de mentions négatives qui résulte d'un comment_X long.
+
+### Evolution du sentiment
+```{r score00 , echo = FALSE}
+library(zoo)
+comment_X$Month_Yr<-as.POSIXct(comment_W$Date) #un format qu'aime lubridate
+
+comment_X$datem = as.yearmon(comment_X$Month_Yr)
+comment_X$year = year(comment_X$Month_Yr)
+comment_X$Year =as.factor(comment_X$year)
+time<-aggregate(sent_score~datem,data=comment_X,FUN="mean")
+ggplot(time,aes(x=datem,y=sent_score))+ geom_line(size=2,color="green")+theme_minimal()+stat_smooth(method = "loess", formula = y ~ x, size = 1)
+time<-aggregate(sent_score~Month_Yr,data=comment_X,FUN="mean")
+
+ggplot(time,aes(x=Month_Yr,y=sent_score))+ geom_line(size=1,color="grey")+theme_minimal()+stat_smooth(method = "loess", formula = y ~ x, size = 1)
+```
+### les corrélats du sentiment
+
+les modèles montrent que les déterminants sont relatifs au produit ( taille de l'hotel avec un avantage à ceux de taille intermédiaires), la longueur du texte. nile prix ni l'expérience du scripteur ne sont significatif et la prise en compte de la période et de la destination ne semble être important.
+
+```{r score02 , echo = FALSE}
+reg10<-lmer(sent_score~Note+nbcar.x+(1 | Hotel), data=comment_X)
+ggplot(comment_X,aes(x=Note,y=sent_score))+geom_point(position = "jitter")+ geom_smooth(aes(color = Hotel), method = "lm", se = FALSE)+theme_minimal() + theme(legend.position = "none")
+reg11<-lmer(sent_score~Note+nbcar.x+log(prix)+nb_comment.y+Taille_hotel+(1 | Hotel), data=comment_X)
+reg12<-lmer(sent_score~Note+nbcar.x+log(prix)+nb_comment.y+Taille_hotel+Year+destination+(1 | Hotel), data=comment_X)
+
+library(stargazer)
+stargazer(reg10,reg11,reg12,type="text")
+```
+
+### Positivity et negativity - nrc
+
+Le méme outil fournit un autre systéme d'annotations qui compte les mentions d'éléments positifs ou négatifs, ainsi que d'émotions définies sur la base de l'inventaire de @plutchik_psychoevolutionary_1982 on utilise simplement la fonction `get_nrc_sentiment`, en précisant le dictionnaire adéquat. L'échelle comprend en fait deux éléments : les 8 émotion de base *au sens de pluchik, et deux indicateurs de polarité.
+L'opérationnalisation réalisée par @mohammad_crowdsourcing_2013 s'inscrit dans une tradition de la recherche en marketing, se souvenir de @havlena_varieties_1986 et de @westbrook_dimensionality_1991.
+
+```{r sent07}
+emotions <- get_nrc_sentiment(phrase,language = "french")
+```
+
+On s'intéresse d'surtout aux mentions positives et négatives ( les émotions c'est pour plus tard. (la mesure permet ainsi une dissymétrie des deux polarités, il y a le bien, le mal, le mal et le bien, mais aussi si qui n'est ni mal ni bien). 
+Les textes étant inégaux en taille on va ramener l'indicateur de polarité au nombre de caractéres (sur une base de 500 c) de chaque contribution. En effet l'algo compte les valence et leur intensité est proportionnel é la longueur du texte. Ce qui est clairement démontré par la seconde figure. 
+A partir de ces deux mesures,  4 indicateurs peuvent étre construits
+ *  Positivité : nombre de termes positifs pour 500 signes.
+ *  Négativitivé : nombre de termes négatifs pour 500 signes.
+ *  Valence : rapport du nombre de termes positifs sur les négatifs.
+ *  Expressivité : nombre de termes positifs et négatifs.
+le dernier graphe nous apprend que les jugements plutôt positifs sont aussi les plus expressifs. La "froideur" des avis les plus négatifs refléte-t-elle une crainte de la désaprobation sociale. C'est une piste de recherche à poursuivre, on pourrait s'attendre à ce que les avis les plus négatifs surgissent plus facilement si la densité des négatives est plus importante et observer une sorte d'autocorrélation.
+
+```{r sent08}
+polarity<-subset(emotions,select=c(positive, negative))
+comment_X<-cbind(comment_X,polarity)
+sum(comment_X$positive)
+sum(comment_X$negative)
+
+G1<-ggplot(comment_X, aes(x=positive))+geom_histogram(binwidth = 1, fill="darkred")+xlim(-1,40)+ylim(0,3000)+theme_minimal()+ ggplot2::annotate("text", x=0, y=350, size=2.5,label= paste0("n=",sum(comment_X$positive)))
+G2<-ggplot(comment_X, aes(x=negative))+geom_histogram(binwidth = 1,fill="blue4")+xlim(-1,40)+ylim(0,3000)+theme_minimal()+ ggplot2::annotate("text", x=0, y=350, size=2.5,label= paste0("n=",sum(comment_X$negative)))
+grid.arrange(G1,G2,ncol=2)
+```
+
+La relation entre le nombre de mentions et la taille du texte est évidente et de l'ordre de 0.75.
+
+```{r sent08a}
+rp<-round(cor(comment_X$nbcar.x, comment_X$positive),2)
+rn<-round(cor(comment_X$nbcar.x, comment_X$negative),2)
+
+
+G09a<-ggplot(comment_X, aes(x=nbcar.x,y=positive ))+geom_point(color="grey")+geom_smooth(method = "gam", formula = y ~ s(x, bs = "cs"))+xlim(0,5000)+theme_minimal()+ylim(0,30)+ ggplot2::annotate("text", x=0, y=30, size=2.5,label= paste0("n=",rp))
+G09b<-ggplot(comment_X, aes(x=nbcar.x,y=negative ))+geom_point(color="grey")+geom_smooth(method = "gam", formula = y ~ s(x, bs = "cs"))+xlim(0,5000)+theme_minimal() +ylim(0,30)+ ggplot2::annotate("text", x=0, y=30, size=2.5,label= paste0("n=",rn))
+grid.arrange(G09a,G09b,ncol=2)
+
+```
+
+L'idée de transformer cet indicateur brut en le rapportant à un méme nombre de caractéres (500 caractères ou environ un avis median) est donc justifiée. On observe une symétrie l'effet de la valence sur l'expressivité, méme si une contribution plus forte de la négativité. Négativité et positivité ne sont pas corrélées. 
+
+```{r sent08b}
+
+comment_X$positivity<-(comment_X$positive*500)/(comment_X$nbcar.x)
+comment_X$negativity<-(comment_X$negative*500)/(comment_X$nbcar.x)
+comment_X$valence<-comment_X$positivity-comment_X$negativity
+comment_X$expressivity<-comment_X$positivity+comment_X$negativity
+
+G11<-ggplot(comment_X, aes(x=valence,y=expressivity ))+geom_point(color="grey")+geom_smooth(method = "gam", formula = y ~ s(x, bs = "cs"))+theme_minimal()
+G12<-ggplot(comment_X, aes(x=negativity,y=positivity ))+geom_point(color="grey")+geom_smooth(method = "gam", formula = y ~ s(x, bs = "cs"))+theme_minimal()
+G13<-ggplot(comment_X, aes(x=negativity,y= expressivity))+geom_point(color="grey")+geom_smooth(method = "gam", formula = y ~ s(x, bs = "cs"))+theme_minimal()
+G14<-ggplot(comment_X, aes(x=positivity,y= expressivity))+geom_point(color="grey")+geom_smooth(method = "gam", formula = y ~ s(x, bs = "cs"))+theme_minimal()
+grid.arrange(G11,G12,G13,G14,ncol=2)
+
+```
+
+On fait les comparaisons ci-dessous
+
+##Mesure de l'expérience
+
+le LIWC permet d'obtenir d'autres indicateurs du sentiment, une partie des 80 indicateurs proposés est relatif à des dimensions topicales dont trois groupes vont retenir notre attention dans la mesure où ils décrivent une partie de l'expérience relatée dans les commentaires. 
+* La sensorialité ( voir, entendre, sentir)
+* L'orientation temporelle ( passé, présent, futur)
+* les émotions négatives (tristesse, colére, )
+
+La procédure pour extraire ces notions est fort simple :
+
+```{r licw01, fig.width=8, fig.height=4.5, caption =""}
+# the devtools package needs to be installed for this to work
+#devtools::install_github("kbenoit/quanteda.dictionaries")
+
+library("quanteda.dictionaries")
+dict_liwc_french <- dictionary(file = "FrenchLIWCDictionary.dic",
+                             format = "LIWC")
+test<-liwcalike(comment_X$Commetaire,dictionary = dict_liwc_french)
+comment_X<-cbind(comment_X,test)
+```
+
+##
+```{r licw01b}
+G15a<-ggplot(comment_X, aes(x=negativity,y=émonég ))+geom_point(color="grey")+geom_smooth(method = "gam", formula = y ~ s(x, bs = "cs"))+theme_minimal()
+G15b<-ggplot(comment_X, aes(x=positivity,y=émopos ))+geom_point(color="grey")+geom_smooth(method = "gam", formula = y ~ s(x, bs = "cs"))+theme_minimal()
+grid.arrange(G15a,G15b,ncol=2)
+
+```
+
+
+## Annotations
+
+```{r lemme0, echo = TRUE}
+text<-paste0(comment_X$Titre,". ",comment_X$Commetaire)
+cnlp_init_udpipe(model_name = "french")
+#obj <- cnlp_annotate(text, as_strings = TRUE)
+#saveRDS(obj,"obj2018.rds")
+obj<-readRDS(file="obj2018.rds")
+```
+
+
+```{r lemme01, echo = FALSE}
+Vocab<-cnlp_get_token(obj)
+Table <- with(Vocab, table(upos))
+ling<-as.data.frame(Table)
+g1<-ggplot(ling,aes(x=reorder(upos,Freq),y=Freq))+geom_bar(stat="identity",fill="darkgreen")+coord_flip()+theme_minimal()
+g1+labs(title = "Fréquence des catégories morpho-syntaxiques",caption = "TripAdvisor - un grand hotel",x="catégorie",y="nombre d'avis")
+```
+
+
+```{r pos01, fig.width=8, fig.height=4.5, caption ="fréquence des termes par POS : Noms communs, adjectifs et adverbes,verbes"}
+Vocab1<-subset(Vocab, upos=="NOUN")
+Table <- with(Vocab1, table(lemma))
+ling<-as.data.frame(Table) %>% filter(Freq>3000)
+g2<-ggplot(ling,aes(x=reorder(lemma,Freq),y=Freq))+geom_bar(stat="identity",fill="brown1")+coord_flip()+theme_minimal()+theme_minimal()+ theme(axis.title.x=element_blank())+ theme(axis.title.y=element_blank())+labs(title = "Noms communs",x="Noms commun",y="nombre d'avis")
+
+Vocab2<-subset(Vocab, upos=="ADJ" | upos=="ADV")
+Table <- with(Vocab2, table(lemma))
+ling<-as.data.frame(Table) %>% filter(Freq>3000)
+g3<-ggplot(ling,aes(x=reorder(lemma,Freq),y=Freq))+geom_bar(stat="identity",fill="brown2")+coord_flip()+theme_minimal()+theme(text = element_text(size=3))+theme_minimal()+ theme(axis.title.y=element_blank())+labs(title = "Adjectif ",x="Adverbe et adjectifs",y="nombre d'avis")
+
+Vocab3<-subset(Vocab, upos=="ADV")
+Table <- with(Vocab3, table(lemma))
+ling<-as.data.frame(Table) %>% filter(Freq>1000)
+g4<-ggplot(ling,aes(x=reorder(lemma,Freq),y=Freq))+geom_bar(stat="identity",fill="brown4")+coord_flip()+theme_minimal()+theme(text = element_text(size=9), label = NULL)+theme_minimal()+ theme(axis.title.y=element_blank(),axis.text=element_text(size=9))+labs(title = " Verbes",x="verbes",y="nombre d'avis")
+grid.arrange(g2,g3,g4,ncol=3)
+```
+
+##  LDA
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+```{r lda, fig.height=8,fig.width=9}
+tf <- cnlp_get_token(obj) %>%
+  filter(upos %in% c("ADJ", "NOUN","VERB")) %>%
+  cnlp_utils_tfidf(min_df = 0.05, max_df = 0.95, type = "tf", tf_weight = "raw")
+```
+
+
+```{r lda2, fig.width=8, fig.height=4.5, caption ="Topic LDA"}
+lda_model = LDA$new(n_topics = 8, doc_topic_prior = 0.1, topic_word_prior = 0.01)
+set.seed(67)
+doc_topic_distr = 
+  lda_model$fit_transform(x = tf, n_iter = 1000, 
+                          convergence_tol = 0.001, n_check_convergence = 25, 
+                          progressbar = FALSE)
+#description des topic en fonction d'un degré de pertinence de lamba ( lambda =1 probabilités)
+lda_res<-as.data.frame(lda_model$get_top_words(n = 15, lambda = 0.30))
+lda_res$rank<-as.numeric(row.names(lda_res))
+lda_res<-melt(lda_res,id.vars = c("rank"))
+ggplot(lda_res, aes(x=variable, y= rank, group =  value , label = value)) + scale_y_reverse() + geom_text(aes(color=variable,size=sqrt(26-rank)))+theme_minimal()+scale_color_hue()+guides(color=FALSE,size=FALSE)+labs(x="topics", y="par ordre de pertinence")
+#library(LDAvis)
+lda_model$plot()
+topic<- as.data.frame(doc_topic_distr)
+comment_X<-cbind(comment_X,topic)
+
+comment_X$dithyrambe<-comment_X$V1
+comment_X$Chaleurrelation<-comment_X$V2
+comment_X$rapportqltepx<-comment_X$V3
+comment_X$transit<-comment_X$V4
+comment_X$interactionclient<-comment_X$V5
+comment_X$motulife<-comment_X$V6
+comment_X$cartepostale<-comment_X$V7
+comment_X$potentialite<-comment_X$V8
+
+
+
+```
+
+
+
+# Corrélation des Indicateurs de sentiment
+
+pour reprendre ceux obtenus par LIWC
+
+```{r corindic, fig.width=8, fig.height=4.5, caption ="Topic LDA"}
+#C,K, Maas,positivity,negativity, expressivity,sent_score
+M<-subset(comment_X, select=c(meanSentenceLength , meanWordSyllables,nbcar.x,WPS,WC,ARI, Coleman.Liau.grade,TTR,C,Maas,sent_score,positivity,émopos,negativity,émonég,verbepassé,verbefutur,anxiété,colère,tristesse,entendre, sentir, voir))
+M <- cor(M)
+library(corrplot)
+corrplot(M, type="lower")
+
+M<-subset(comment_X, select=c(sent_score,positivity,negativity,émopos,émonég,anxiété,colère,tristesse))
+M <- cor(M)
+corrplot.mixed(M)
+
+```
+
+# Comparaison par hôtels, Iles et scripteurs
+
+Les instruments étant construits on teste systématiquement les 5V avec les 6 variables clés
+  * La destination
+  * La période (année)
+  * La taille de l'hôtel ( nbe de chambre)
+  * le prix de référence
+  * l'expérience du scripteur
+  * la note donnée par le scripteu
+  
+##production verbale
+
+```{r sentiment002g, echo = TRUE}
+#nombre de phrases : Sentence per doc
+comment_X$SPD<-comment_X$WC/comment_X$WPS
+foo1<- aggregate(cbind(nbcar.x,WC,SPD)~Taille_hotel ,data=comment_X,FUN="mean")
+foo1<-melt(foo1)
+g15a<-ggplot(foo1, aes(x=Taille_hotel, y=value,group=variable))+geom_line(size=2,size=2,aes(color=variable))+facet_grid(variable~.,scale="free")+theme_minimal()+labs(title = "Production textuelle : l'effet de taille", x="taille des hôtels", y="moyenne",caption = "")+ theme(legend.position ="none")+scale_color_manual(values=wes_palette(n=5,name="Zissou1"))+theme(axis.text.x = element_text(angle = 45))
+
+foo2<- aggregate(cbind(nbcar.x,WC,SPD)~prix_classe ,data=comment_X,FUN="mean")
+foo2<-melt(foo2)
+g15b<-ggplot(foo2, aes(x=prix_classe, y=value,group=variable))+geom_line(size=2,size=2,aes(color=variable))+facet_grid(variable~.,scale="free")+theme_minimal()+labs(title = "Production textuelle : l'effet du prix", x="Gamme de prix", y="moyenne",caption = "")+ theme(legend.position="none")+scale_color_manual(values=wes_palette(n=5,name="Zissou1"))+theme(axis.text.x = element_text(angle = 45))
+
+foo3<- aggregate(cbind(nbcar.x,WC,SPD)~Year ,data=comment_X,FUN="mean")
+foo3<-melt(foo3)
+g15c<-ggplot(foo3, aes(x=Year, y=value,group=variable))+geom_line(size=2,size=2,aes(color=variable))+facet_grid(variable~.,scale="free")+theme_minimal()+labs(title = "Production textuelle : effet du temps", x="Gamme de prix", y="moyenne",caption = "")+ theme(legend.position="none")+scale_color_manual(values=wes_palette(n=5,name="Zissou1"))+theme(axis.text.x = element_text(angle = 45))
+
+foo4<- aggregate(cbind(nbcar.x,WC,SPD)~destination ,data=comment_X,FUN="mean")
+foo4<-melt(foo4)
+g15d<-ggplot(foo4, aes(x=destination, y=value,group=variable))+geom_line(size=2,size=2,aes(color=variable))+facet_grid(variable~.,scale="free")+theme_minimal()+labs(title = "Production textuelle : l'effet des Iles", x="Iles", y="moyenne",caption = "")+ theme(legend.position="none")+scale_color_manual(values=wes_palette(n=5,name="Zissou1"))+theme(axis.text.x = element_text(angle = 45))
+
+foo5<- aggregate(cbind(nbcar.x,WC,SPD)~redacteur ,data=comment_X,FUN="mean")
+foo5<-melt(foo5)
+g15e<-ggplot(foo5, aes(x=redacteur, y=value,group=variable))+geom_line(size=2,aes(color=variable))+facet_grid(variable~.,scale="free")+theme_minimal()+labs(title = "Production textuelle : l'effet de l'expérience critiques", x="Nb d'avis écrits", y="moyenne",caption = "")+ theme(legend.position="none")+scale_color_manual(values=wes_palette(n=5,name="Zissou1"))+theme(axis.text.x = element_text(angle = 45))
+
+foo6<- aggregate(cbind(nbcar.x,WC,SPD)~note_avis ,data=comment_X,FUN="mean")
+foo6<-melt(foo6)
+g15f<-ggplot(foo6, aes(x=note_avis, y=value,group=variable))+geom_line(size=2,aes(color=variable))+facet_grid(variable~.,scale="free")+theme_minimal()+labs(title = "Production textuelle : l'effet du jugement", x="Note", y="moyenne",caption = "")+ theme(legend.position="none")+scale_color_manual(values=wes_palette(n=5,name="Zissou1"))+theme(axis.text.x = element_text(angle = 45))
+
+grid.arrange(g15a, g15b, ncol=2)
+grid.arrange(g15c, g15d, ncol=2)
+grid.arrange(g15e, g15f, ncol=2)
+
+anova_divlex01<- lm(nbcar.x ~ destination+Year+Taille_hotel+prix_classe+redacteur+note_avis, data=comment_X)
+sstable<-anova_stats(car::Anova(anova_divlex01, type = 3)) 
+myft <- flextable(sstable, col_keys = c("term", "df", "statistic", "p.value","cohens.f","power"))
+myft<- add_header_lines(myft, values =c("Nombre de caractères") )
+myft
+
+anova_divlex01<- lm(WC ~ destination+Year+Taille_hotel+prix_classe+redacteur+note_avis, data=comment_X)
+sstable<-anova_stats(car::Anova(anova_divlex01, type = 3)) 
+myft <- flextable(sstable, col_keys = c("term", "df", "statistic", "p.value","cohens.f","power"))
+myft<- add_header_lines(myft, values =c("nombre de mots") )
+myft
+
+anova_divlex01<- lm(SPD ~ destination+Year+Taille_hotel+prix_classe+redacteur+note_avis, data=comment_X)
+sstable<-anova_stats(car::Anova(anova_divlex01, type = 3)) 
+myft <- flextable(sstable, col_keys = c("term", "statistic", "df", "p.value","cohens.f","power")) 
+myft<- add_header_lines(myft, values =c("Expressivité") )
+myft
+
+foo1<- aggregate(cbind(sent_score,nbcar.x,WC,SPD)~destination ,data=comment_X,FUN="mean") %>% mutate(categorie=destination)%>% dplyr::select(-destination)
+foo2<- aggregate(cbind(sent_score,nbcar.x,WC,SPD)~Year ,data=comment_X,FUN="mean") %>% mutate(categorie=Year)%>% dplyr::select(-Year)
+foo3<- aggregate(cbind(sent_score,nbcar.x,WC,SPD)~Taille_hotel ,data=comment_X,FUN="mean") %>% mutate(categorie=Taille_hotel)%>% dplyr::select(-Taille_hotel)
+foo4<- aggregate(cbind(sent_score,nbcar.x,WC,SPD)~prix_classe ,data=comment_X,FUN="mean") %>% mutate(categorie=prix_classe)%>% dplyr::select(-prix_classe)
+foo5<- aggregate(cbind(sent_score,nbcar.x,WC,SPD)~redacteur ,data=comment_X,FUN="mean") %>% mutate(categorie=redacteur)%>% dplyr::select(-redacteur)
+foo6<- aggregate(cbind(sent_score,nbcar.x,WC,SPD)~note_avis ,data=comment_X,FUN="mean") %>% mutate(categorie=note_avis)%>% dplyr::select(-note_avis)
+
+foo<-rbind(foo1,foo2,foo3,foo4,foo5,foo6)
+myft01 <- flextable(foo, col_keys = c("categorie","nbcar.x", "WC", "SPD"))
+myft01
+```
+
+##Comparaison des sentiments
+
+on reprend les comparaisons par catégories : 
+
+
+```{r sentiment002f, echo = TRUE}
+foo1<- aggregate(cbind(positivity,émopos,negativity,émonég,expressivity)~Taille_hotel ,data=comment_X,FUN="mean")
+foo1<-melt(foo1)
+g15a<-ggplot(foo1, aes(x=Taille_hotel, y=value,group=variable))+geom_line(size=2,size=2,aes(color=variable))+facet_grid(variable~.,scale="free")+theme_minimal()+labs(title = "Sentiment : l'effet de taille", x="taille des hôtels", y="moyenne",caption = "")+ theme(legend.position ="none")+scale_color_manual(values=wes_palette(n=5,name="Zissou1"))+theme(axis.text.x = element_text(angle = 45))
+
+foo2<- aggregate(cbind(positivity,émopos,negativity,émonég,expressivity)~prix_classe ,data=comment_X,FUN="mean")
+foo2<-melt(foo2)
+g15b<-ggplot(foo2, aes(x=prix_classe, y=value,group=variable))+geom_line(size=2,size=2,aes(color=variable))+facet_grid(variable~.,scale="free")+theme_minimal()+labs(title = "Sentiment : l'effet du prix", x="Gamme de prix", y="moyenne",caption = "")+ theme(legend.position="none")+scale_color_manual(values=wes_palette(n=5,name="Zissou1"))+theme(axis.text.x = element_text(angle = 45))
+
+foo3<- aggregate(cbind(positivity,émopos,negativity,émonég,expressivity)~Year ,data=comment_X,FUN="mean")
+foo3<-melt(foo3)
+g15c<-ggplot(foo3, aes(x=Year, y=value,group=variable))+geom_line(size=2,size=2,aes(color=variable))+facet_grid(variable~.,scale="free")+theme_minimal()+labs(title = "Sentiment : effet du temps", x="Gamme de prix", y="moyenne",caption = "")+ theme(legend.position="none")+scale_color_manual(values=wes_palette(n=5,name="Zissou1"))+theme(axis.text.x = element_text(angle = 45))
+
+foo4<- aggregate(cbind(positivity,émopos,negativity,émonég,expressivity)~destination ,data=comment_X,FUN="mean")
+foo4<-melt(foo4)
+g15d<-ggplot(foo4, aes(x=destination, y=value,group=variable))+geom_line(size=2,size=2,aes(color=variable))+facet_grid(variable~.,scale="free")+theme_minimal()+labs(title = "Sentiment : l'effet des Iles", x="Iles", y="moyenne",caption = "")+ theme(legend.position="none")+scale_color_manual(values=wes_palette(n=5,name="Zissou1"))+theme(axis.text.x = element_text(angle = 45))
+
+foo5<- aggregate(cbind(positivity,émopos,negativity,émonég,expressivity)~redacteur ,data=comment_X,FUN="mean")
+foo5<-melt(foo5)
+g15e<-ggplot(foo5, aes(x=redacteur, y=value,group=variable))+geom_line(size=2,aes(color=variable))+facet_grid(variable~.,scale="free")+theme_minimal()+labs(title = "Sentiment : l'effet de l'expérience critiques", x="Nb d'avis écrits", y="moyenne",caption = "")+ theme(legend.position="none")+scale_color_manual(values=wes_palette(n=5,name="Zissou1"))+theme(axis.text.x = element_text(angle = 45))
+
+foo6<- aggregate(cbind(positivity,émopos,negativity,émonég,expressivity)~note_avis ,data=comment_X,FUN="mean")
+foo6<-melt(foo6)
+g15f<-ggplot(foo6, aes(x=note_avis, y=value,group=variable))+geom_line(size=2,aes(color=variable))+facet_grid(variable~.,scale="free")+theme_minimal()+labs(title = "Sentiment : l'effet du jugement", x="Note", y="moyenne",caption = "")+ theme(legend.position="none")+scale_color_manual(values=wes_palette(n=5,name="Zissou1"))+theme(axis.text.x = element_text(angle = 45))
+
+grid.arrange(g15a, g15b, ncol=2)
+grid.arrange(g15c, g15d, ncol=2)
+grid.arrange(g15e, g15f, ncol=2)
+
+#library(sjstats)
+#library(kableExtra)
+anova_divlex01<- lm(sent_score ~ destination+Year+Taille_hotel+prix_classe+redacteur+note_avis, data=comment_X)
+sstable<-anova_stats(car::Anova(anova_divlex01, type = 3)) 
+myft <- flextable(sstable, col_keys = c("term", "df", "statistic", "p.value","cohens.f","power"))
+myft<- add_header_lines(myft, values =c("Sentiment général, FEEL") )
+myft
+
+anova_divlex01<- lm(positivity ~ destination+Year+Taille_hotel+prix_classe+redacteur+note_avis, data=comment_X)
+sstable<-anova_stats(car::Anova(anova_divlex01, type = 3)) 
+myft <- flextable(sstable, col_keys = c("term", "df", "statistic", "p.value","cohens.f","power"))
+myft<- add_header_lines(myft, values =c("Positivité FEEL") )
+myft
+
+anova_divlex01<- lm(émopos ~ destination+Year+Taille_hotel+prix_classe+redacteur+note_avis, data=comment_X)
+sstable<-anova_stats(car::Anova(anova_divlex01, type = 3)) 
+myft <- flextable(sstable, col_keys = c("term", "statistic", "df", "p.value","cohens.f","power")) 
+myft<- add_header_lines(myft, values =c("Emotions positives LIWC") )
+myft
+
+anova_divlex01<- lm(negativity ~ destination+Year+Taille_hotel+prix_classe+redacteur+note_avis, data=comment_X)
+sstable<-anova_stats(car::Anova(anova_divlex01, type = 3)) 
+myft <- flextable(sstable, col_keys = c("term", "df", "statistic", "p.value","cohens.f","power"))
+myft<- add_header_lines(myft, values =c("négativité") )
+myft
+
+anova_divlex01<- lm(émonég ~ destination+Year+Taille_hotel+prix_classe+redacteur+note_avis, data=comment_X)
+sstable<-anova_stats(car::Anova(anova_divlex01, type = 3)) 
+myft <- flextable(sstable, col_keys = c("term", "statistic", "df", "p.value","cohens.f","power")) 
+myft<- add_header_lines(myft, values =c("Emotion négative") )
+myft
+
+anova_divlex01<- lm(expressivity ~ destination+Year+Taille_hotel+prix_classe+redacteur+note_avis, data=comment_X)
+sstable<-anova_stats(car::Anova(anova_divlex01, type = 3)) 
+myft <- flextable(sstable, col_keys = c("term", "statistic", "df", "p.value","cohens.f","power")) 
+myft<- add_header_lines(myft, values =c("Expressivité") )
+myft
+
+foo1<- aggregate(cbind(sent_score,positivity,émopos,negativity,émonég,expressivity)~destination ,data=comment_X,FUN="mean") %>% mutate(categorie=destination)%>% select(-destination)
+foo2<- aggregate(cbind(sent_score,positivity,émopos,negativity,émonég,expressivity)~Year ,data=comment_X,FUN="mean") %>% mutate(categorie=Year)%>% select(-Year)
+foo3<- aggregate(cbind(sent_score,positivity,émopos,negativity,émonég,expressivity)~Taille_hotel ,data=comment_X,FUN="mean") %>% mutate(categorie=Taille_hotel)%>% select(-Taille_hotel)
+foo4<- aggregate(cbind(sent_score,positivity,émopos,negativity,émonég,expressivity)~prix_classe ,data=comment_X,FUN="mean") %>% mutate(categorie=prix_classe)%>% select(-prix_classe)
+foo5<- aggregate(cbind(sent_score,positivity,émopos,negativity,émonég,expressivity)~redacteur ,data=comment_X,FUN="mean") %>% mutate(categorie=redacteur)%>% select(-redacteur)
+foo6<- aggregate(cbind(sent_score,positivity,émopos,negativity,émonég,expressivity)~note_avis ,data=comment_X,FUN="mean") %>% mutate(categorie=note_avis)%>% select(-note_avis)
+
+foo<-rbind(foo1,foo2,foo3,foo4,foo5,foo6)
+myft01 <- flextable(foo, col_keys = c("categorie", "sent_score", "positivity","émopos", "negativity","émonég","expressivity"))
+myft01
+```
+
+
+
+## comparaison lisibilité
+
+```{r readibility}
+foo<- aggregate(cbind(ARI,Coleman.Liau.grade)~destination,data=comment_X,FUN="mean")
+foo<-melt(foo)
+g07d<-ggplot(foo, aes(x=destination, y=value,group=variable))+geom_line(size=2,size=2,aes(color=variable))+facet_grid(variable~.,scale="free")+theme_minimal()+theme(legend.position="none")+theme(legend.position ="none")+scale_color_manual(values=wes_palette(n=4,name="Zissou1"))+theme(axis.text.x = element_text(angle = 45))+labs(title = "Lisibilité : l'effet de destination", x="destination", y="moyenne",caption = "")
+
+foo<- aggregate(cbind(ARI,Coleman.Liau.grade)~Year,data=comment_X,FUN="mean")
+foo<-melt(foo)
+g07c<-ggplot(foo, aes(x=Year, y=value,group=variable))+geom_line(size=2,size=2,aes(color=variable))+facet_grid(variable~.,scale="free")+theme_minimal()+theme(legend.position="none")+theme(legend.position ="none")+scale_color_manual(values=wes_palette(n=4,name="Zissou1"))+theme(axis.text.x = element_text(angle = 45))+labs(title = "Lisibilité : l'effet de la note", x="Nombre d'avis par scripteur", y="moyenne",caption = "")
+
+foo<- aggregate(cbind(ARI,Coleman.Liau.grade)~Taille_hotel,data=comment_X,FUN="mean")
+foo<-melt(foo)
+g07a<-ggplot(foo, aes(x=Taille_hotel, y=value,group=variable))+geom_line(size=2,size=2,aes(color=variable))+facet_grid(variable~.,scale="free")+theme_minimal()+theme(legend.position="none")+labs(title = "Lisibilité : l'effet de taille", x="taille des hôtels", y="moyenne",caption = "")+ theme(legend.position ="none")+scale_color_manual(values=wes_palette(n=4,name="Zissou1"))+theme(axis.text.x = element_text(angle = 45))
+
+foo<- aggregate(cbind(ARI,Coleman.Liau.grade)~prix_classe,data=comment_X,FUN="mean")
+foo<-melt(foo)
+g07b<-ggplot(foo, aes(x=prix_classe, y=value,group=variable))+geom_line(size=2,size=2,aes(color=variable))+facet_grid(variable~.,scale="free")+theme_minimal()+theme(legend.position="none")+theme(legend.position ="none")+scale_color_manual(values=wes_palette(n=4,name="Zissou1"))+theme(axis.text.x = element_text(angle = 45))+labs(title = "Lisibilité : l'effet du prix", x="Gamme de prix", y="moyenne",caption = "")
+
+foo<- aggregate(cbind(ARI,Coleman.Liau.grade)~redacteur,data=comment_X,FUN="mean")
+foo<-melt(foo)
+g07e<-ggplot(foo, aes(x=redacteur, y=value,group=variable))+geom_line(size=2,size=2,aes(color=variable))+facet_grid(variable~.,scale="free")+theme_minimal()+theme(legend.position="none")+theme(legend.position ="none")+scale_color_manual(values=wes_palette(n=4,name="Zissou1"))+theme(axis.text.x = element_text(angle = 45))+labs(title = "Lisibilité : l'effet du scripteur", x="Nombre d'avis par scripteur", y="moyenne",caption = "")
+
+foo<- aggregate(cbind(Coleman.Liau.grade)~note_avis,data=comment_X,FUN="mean")
+foo<-melt(foo)
+g07f<-ggplot(foo, aes(x=note_avis, y=value,group=variable))+geom_line(size=2,size=2,aes(color=variable))+facet_grid(variable~.,scale="free")+theme_minimal()+theme(legend.position="none")+theme(legend.position ="none")+scale_color_manual(values=wes_palette(n=4,name="Zissou1"))+theme(axis.text.x = element_text(angle = 45))+labs(title = "Lisibilité : l'effet de notation", x="destination", y="moyenne",caption = "")
+g07f
+grid.arrange(g07a,g07b,ncol=2)
+grid.arrange(g07c,g07d,ncol=2)
+grid.arrange(g07e,g07f,ncol=2)
+
+foo1<- aggregate(cbind(ARI,Coleman.Liau.grade)~destination ,data=comment_X,FUN="mean") %>% mutate(categorie=destination)%>% select(-destination)
+foo2<- aggregate(cbind(ARI,Coleman.Liau.grade)~Year ,data=comment_X,FUN="mean") %>% mutate(categorie=Year) %>% select(-Year)
+foo3<- aggregate(cbind(ARI,Coleman.Liau.grade)~Taille_hotel ,data=comment_X,FUN="mean") %>% mutate(categorie=Taille_hotel)%>% select(-Taille_hotel)
+foo4<- aggregate(cbind(ARI,Coleman.Liau.grade)~prix_classe ,data=comment_X,FUN="mean") %>% mutate(categorie=prix_classe)%>% select(-prix_classe)
+foo5<- aggregate(cbind(ARI,Coleman.Liau.grade)~redacteur ,data=comment_X,FUN="mean") %>% mutate(categorie=redacteur)%>% select(-redacteur)
+foo6<- aggregate(cbind(ARI,Coleman.Liau.grade)~note_avis ,data=comment_X,FUN="mean") %>% mutate(categorie=note_avis)%>% select(-note_avis)
+
+foo<-rbind(foo1,foo2,foo3,foo4,foo5,foo6)
+myft02 <- flextable(foo, col_keys = c("categorie","ARI", "Coleman.Liau.grade"))
+myft02
+
+anova_01<- lm(Coleman.Liau.grade ~ Taille_hotel+prix_classe+destination+Year+redacteur+note_avis, data=comment_X)
+sstable<-anova_stats(car::Anova(anova_01, type = 3)) 
+myft <- flextable(sstable, col_keys = c("term", "df", "statistic", "p.value","cohens.f","power"))
+myft<- add_header_lines(myft, values =c("Coleman liau grade") )
+myft
+
+anova_01<- lm(ARI ~ Taille_hotel+prix_classe+destination+Year+redacteur+note_avis, data=comment_X)
+sstable<-anova_stats(car::Anova(anova_01, type = 3)) 
+myft <- flextable(sstable, col_keys = c("term", "df", "statistic", "p.value","cohens.f","power"))
+myft<- add_header_lines(myft, values =c("ARI") )
+myft
+
+```
+## Diversité lexicale 
+
+
+```{r divlex_b}
+foo<- aggregate(cbind(TTR,C,Maas)~Taille_hotel ,data=comment_X,FUN="mean")
+foo<-melt(foo)
+g08a<-ggplot(foo, aes(x=Taille_hotel, y=value,group=variable))+geom_line(size=2,size=2,aes(color=variable))+facet_grid(variable~.,scale="free")+theme_minimal()+theme(legend.position="none")+scale_color_manual(values=wes_palette(n=3,name="Zissou1"))+theme(axis.text.x = element_text(angle = 45))+labs(title = "Diversité comment_Xicale : l'effet de taille", x="destination", y="moyenne",caption = "")
+             
+foo<- aggregate(cbind(TTR,C,Maas)~prix_classe,data=comment_X,FUN="mean")
+foo<-melt(foo)
+g08b<-ggplot(foo, aes(x=prix_classe, y=value,group=variable))+geom_line(size=2,size=2,aes(color=variable))+facet_grid(variable~.,scale="free")+theme_minimal()+theme(legend.position="none")+scale_color_manual(values=wes_palette(n=3,name="Zissou1"))+theme(axis.text.x = element_text(angle = 45))+labs(title = "Diversité lexicale : l'effet de prix", x="destination", y="moyenne",caption = "")
+
+
+foo<- aggregate(cbind(TTR,C,Maas)~destination ,data=comment_X,FUN="mean")
+foo<-melt(foo)
+g08c<-ggplot(foo, aes(x=destination, y=value,group=variable))+geom_line(size=2,size=2,aes(color=variable))+facet_grid(variable~.,scale="free")+theme_minimal()+theme(legend.position="none")+scale_color_manual(values=wes_palette(n=3,name="Zissou1"))+theme(axis.text.x = element_text(angle = 45))+labs(title = "Diversité lexicale : l'effet de destination", x="destination", y="moyenne",caption = "")
+
+foo<- aggregate(cbind(TTR,C,Maas)~Year ,data=comment_X,FUN="mean")
+foo<-melt(foo)
+g08d<-ggplot(foo, aes(x=Year, y=value,group=variable))+geom_line(size=2,size=2,aes(color=variable))+facet_grid(variable~.,scale="free")+theme_minimal()+theme(legend.position="none")+scale_color_manual(values=wes_palette(n=3,name="Zissou1"))+theme(axis.text.x = element_text(angle = 45))+labs(title = "Diversité lexicale : l'effet du temps", x="destination", y="moyenne",caption = "")
+
+foo<- aggregate(cbind(TTR,C,Maas)~redacteur,data=comment_X,FUN="mean")
+foo<-melt(foo)
+g08e<-ggplot(foo, aes(x=redacteur, y=value,group=variable))+geom_line(size=2,size=2,aes(color=variable))+facet_grid(variable~.,scale="free")+theme_minimal()+theme(legend.position="none")+scale_color_manual(values=wes_palette(n=4,name="Zissou1"))+theme(axis.text.x = element_text(angle = 45))+labs(title = "Lisibilité : l'effet de scripteur", x="destination", y="moyenne",caption = "")
+
+foo<- aggregate(cbind(TTR,C,Maas)~note_avis,data=comment_X,FUN="mean")
+foo<-melt(foo)
+g08f<-ggplot(foo, aes(x=note_avis, y=value,group=variable))+geom_line(size=2,size=2,aes(color=variable))+facet_grid(variable~.,scale="free")+theme_minimal()+theme(legend.position="none")+scale_color_manual(values=wes_palette(n=4,name="Zissou1"))+theme(axis.text.x = element_text(angle = 45))+labs(title = "Lisibilité : l'effet de notation", x="destination", y="moyenne",caption = "")
+
+grid.arrange(g08a, g08b, ncol=2)
+grid.arrange(g08c, g08d,ncol=2)
+grid.arrange(g08e, g08f,ncol=2)
+
+
+foo<- aggregate(cbind(TTR,C,Maas)~note_avis ,data=comment_X,FUN="mean")
+foo<-melt(foo)
+g08g<-ggplot(foo, aes(x=destination, y=value,group=variable))+geom_line(size=2,size=2,aes(color=variable))+facet_grid(variable~.,scale="free")+theme_minimal()+theme(legend.position="none")+scale_color_manual(values=wes_palette(n=3,name="Zissou1"))+theme(axis.text.x = element_text(angle = 45))+labs(title = "Diversité lexicale : l'effet de destination", x="destination", y="moyenne",caption = "")
+
+foo1<- aggregate(cbind(TTR,C,Maas)~destination ,data=comment_X,FUN="mean") %>% mutate(categorie=destination)%>% select(-destination)
+foo2<- aggregate(cbind(TTR,C,Maas)~Year ,data=comment_X,FUN="mean") %>% mutate(categorie=Year)%>% select(-Year)
+foo3<- aggregate(cbind(TTR,C,Maas)~Taille_hotel ,data=comment_X,FUN="mean") %>% mutate(categorie=Taille_hotel)%>% select(-Taille_hotel)
+foo4<- aggregate(cbind(TTR,C,Maas)~prix_classe ,data=comment_X,FUN="mean") %>% mutate(categorie=prix_classe)%>% select(-prix_classe)
+foo5<- aggregate(cbind(TTR,C,Maas)~redacteur ,data=comment_X,FUN="mean") %>% mutate(categorie=redacteur)%>% select(-redacteur)
+foo6<- aggregate(cbind(TTR,C,Maas)~note_avis ,data=comment_X,FUN="mean") %>% mutate(categorie=note_avis)%>% select(-note_avis)
+
+foo<-rbind(foo1,foo2,foo3,foo4,foo5,foo6)
+myft03 <- flextable(foo, col_keys = c("categorie","C", "Maas"))
+myft03
+
+anova_divlex02<- lm(C ~Taille_hotel+prix_classe+destination+year+redacteur+note_avis,data=comment_X)
+sstable<-anova_stats(car::Anova(anova_divlex02, type = 3)) 
+myft <- flextable(sstable, col_keys = c("term", "df", "statistic", "p.value","cohens.f","power"))
+myft<- add_header_lines(myft, values =c("C") )
+myft
+
+anova_divlex01<- lm(Maas ~ Taille_hotel+prix_classe+destination+year+redacteur+note_avis, data=comment_X)
+sstable<-anova_stats(car::Anova(anova_divlex01, type = 3)) 
+myft <- flextable(sstable, col_keys = c("term", "df", "statistic", "p.value","cohens.f","power"))
+myft<- add_header_lines(myft, values =c("Maas") )
+myft
+
+
+```
+
+## On s'intéresse d'abord  à l'expérience sensorielle
+
+```{r licw02, fig.width=8, fig.height=4.5, caption =""}
+foo1<- aggregate(cbind(sentir,voir,entendre)~destination,data=comment_X,FUN="mean")
+foo1<-melt(foo1)
+g20a<-ggplot(foo1, aes(x=destination, y=value,group=variable))+geom_line(aes(color=variable),size=2)+theme_minimal()+scale_color_manual(values=wes_palette(n=3, name="Zissou1"))+coord_flip()
+foo2<- aggregate(cbind(verbepassé,verbefutur,verbeprésent)~destination,data=comment_X,FUN="mean")
+foo2<-melt(foo2)
+g20b<-ggplot(foo2, aes(x=destination, y=value,group=variable))+geom_line(aes(color=variable),size=2)+theme_minimal()+scale_color_manual(values=wes_palette(n=3, name="Zissou1"))+labs(y = "densité", caption = "") +coord_flip()
+foo<- aggregate(cbind(anxiété,colère,tristesse)~destination,data=comment_X,FUN="mean")
+foo<-melt(foo)
+g20c<-ggplot(foo, aes(x=destination, y=value,group=variable))+geom_line(aes(color=variable),size=2)+theme_minimal()+scale_color_manual(values=wes_palette(n=4, name="Zissou1"))+coord_flip()
+grid.arrange(g20a,g20b,g20c, nrow=3)
+
+foo1<- aggregate(cbind(sentir,voir,entendre)~Year,data=comment_X,FUN="mean")
+foo1<-melt(foo1)
+g21a<-ggplot(foo1, aes(x=Year, y=value,group=variable))+geom_line(aes(color=variable),size=2)+theme_minimal()+scale_color_manual(values=wes_palette(n=3, name="Zissou1"))+coord_flip()
+foo2<- aggregate(cbind(verbepassé,verbefutur,verbeprésent)~Year,data=comment_X,FUN="mean")
+foo2<-melt(foo2)
+g21b<-ggplot(foo2, aes(x=Year, y=value,group=variable))+geom_line(aes(color=variable),size=2)+theme_minimal()+scale_color_manual(values=wes_palette(n=3, name="Zissou1"))+labs(y = "densité", caption = "") +coord_flip()
+foo<- aggregate(cbind(anxiété,colère,tristesse)~Year,data=comment_X,FUN="mean")
+foo<-melt(foo)
+g21c<-ggplot(foo, aes(x=Year, y=value,group=variable))+geom_line(aes(color=variable),size=2)+theme_minimal()+scale_color_manual(values=wes_palette(n=4, name="Zissou1"))+coord_flip()
+grid.arrange(g21a,g21b,g21c, nrow=3)
+
+foo1<- aggregate(cbind(sentir,voir,entendre)~Taille_hotel,data=comment_X,FUN="mean")
+foo1<-melt(foo1)
+g22a<-ggplot(foo1, aes(x=Taille_hotel, y=value,group=variable))+geom_line(aes(color=variable),size=2)+theme_minimal()+scale_color_manual(values=wes_palette(n=3, name="Zissou1"))+coord_flip()
+foo2<- aggregate(cbind(verbepassé,verbefutur,verbeprésent)~Taille_hotel,data=comment_X,FUN="mean")
+foo2<-melt(foo2)
+g22b<-ggplot(foo2, aes(x=Taille_hotel, y=value,group=variable))+geom_line(aes(color=variable),size=2)+theme_minimal()+scale_color_manual(values=wes_palette(n=3, name="Zissou1"))+labs(y = "densité", caption = "") +coord_flip()
+foo<- aggregate(cbind(anxiété,colère,tristesse)~Taille_hotel,data=comment_X,FUN="mean")
+foo<-melt(foo)
+g22c<-ggplot(foo, aes(x=Taille_hotel, y=value,group=variable))+geom_line(aes(color=variable),size=2)+theme_minimal()+scale_color_manual(values=wes_palette(n=4, name="Zissou1"))+coord_flip()
+grid.arrange(g22a,g22b,g22c, nrow=3)
+
+foo1<- aggregate(cbind(sentir,voir,entendre)~prix_classe,data=comment_X,FUN="mean")
+foo1<-melt(foo1)
+g23a<-ggplot(foo1, aes(x=prix_classe, y=value,group=variable))+geom_line(aes(color=variable),size=2)+theme_minimal()+scale_color_manual(values=wes_palette(n=3, name="Zissou1"))+coord_flip()
+foo2<- aggregate(cbind(verbepassé,verbefutur,verbeprésent)~prix_classe,data=comment_X,FUN="mean")
+foo2<-melt(foo2)
+g23b<-ggplot(foo2, aes(x=prix_classe, y=value,group=variable))+geom_line(aes(color=variable),size=2)+theme_minimal()+scale_color_manual(values=wes_palette(n=3, name="Zissou1"))+labs(y = "densité", caption = "") +coord_flip()
+foo<- aggregate(cbind(anxiété,colère,tristesse)~prix_classe,data=comment_X,FUN="mean")
+foo<-melt(foo)
+g23c<-ggplot(foo, aes(x=prix_classe, y=value,group=variable))+geom_line(aes(color=variable),size=2)+theme_minimal()+scale_color_manual(values=wes_palette(n=4, name="Zissou1"))+coord_flip()
+grid.arrange(g23a,g23b,g23c, nrow=3)
+
+foo1<- aggregate(cbind(sentir,voir,entendre)~redacteur,data=comment_X,FUN="mean")
+foo1<-melt(foo1)
+g24a<-ggplot(foo1, aes(x=redacteur, y=value,group=variable))+geom_line(aes(color=variable),size=2)+theme_minimal()+scale_color_manual(values=wes_palette(n=3, name="Zissou1"))+coord_flip()
+foo2<- aggregate(cbind(verbepassé,verbefutur,verbeprésent)~redacteur,data=comment_X,FUN="mean")
+foo2<-melt(foo2)
+g24b<-ggplot(foo2, aes(x=redacteur, y=value,group=variable))+geom_line(aes(color=variable),size=2)+theme_minimal()+scale_color_manual(values=wes_palette(n=3, name="Zissou1"))+labs(y = "densité", caption = "") +coord_flip()
+
+foo<- aggregate(cbind(anxiété,colère,tristesse)~redacteur,data=comment_X,FUN="mean")
+foo<-melt(foo)
+g24c<-ggplot(foo, aes(x=redacteur, y=value,group=variable))+geom_line(aes(color=variable),size=2)+theme_minimal()+scale_color_manual(values=wes_palette(n=4, name="Zissou1"))+coord_flip()
+
+grid.arrange(g24a,g24b,g24c, nrow=3)
+
+foo1<- aggregate(cbind(sentir,voir,entendre)~note_avis,data=comment_X,FUN="mean")
+foo1<-melt(foo1)
+g25a<-ggplot(foo1, aes(x=note_avis, y=value,group=variable))+geom_line(aes(color=variable),size=2)+theme_minimal()+scale_color_manual(values=wes_palette(n=3, name="Zissou1"))+coord_flip()
+
+
+foo2<- aggregate(cbind(verbepassé,verbefutur,verbeprésent)~note_avis,data=comment_X,FUN="mean")
+foo2<-melt(foo2)
+g25b<-ggplot(foo2, aes(x=note_avis, y=value,group=variable))+geom_line(aes(color=variable),size=2)+theme_minimal()+scale_color_manual(values=wes_palette(n=3, name="Zissou1"))+labs(y = "densité", caption = "") +coord_flip()
+
+foo<- aggregate(cbind(anxiété,colère,tristesse)~note_avis,data=comment_X,FUN="mean")
+foo<-melt(foo)
+g25c<-ggplot(foo, aes(x=note_avis, y=value,group=variable))+geom_line(aes(color=variable),size=2)+theme_minimal()+scale_color_manual(values=wes_palette(n=4, name="Zissou1"))+coord_flip()
+grid.arrange(g25a,g25b,g25c, nrow=3)
+
+
+```
+
+analyses de variance
+
+```{r licw03}
+
+anova_divlex01<- lm(sentir ~ destination+Year+Taille_hotel+prix_classe+redacteur+note_avis, data=comment_X)
+sstable<-anova_stats(car::Anova(anova_divlex01, type = 3)) 
+myft <- flextable(sstable, col_keys = c("term", "df", "statistic", "p.value","cohens.f","power"))
+myft<- add_header_lines(myft, values =c("sentir") )
+myft
+anova_divlex01<- lm(voir ~ destination+Year+Taille_hotel+prix_classe+redacteur+note_avis, data=comment_X)
+sstable<-anova_stats(car::Anova(anova_divlex01, type = 3)) 
+myft <- flextable(sstable, col_keys = c("term", "df", "statistic", "p.value","cohens.f","power"))
+myft<- add_header_lines(myft, values =c("voir") )
+myft
+anova_divlex01<- lm(entendre ~ destination+Year+Taille_hotel+prix_classe+redacteur+note_avis, data=comment_X)
+sstable<-anova_stats(car::Anova(anova_divlex01, type = 3)) 
+myft <- flextable(sstable, col_keys = c("term", "df", "statistic", "p.value","cohens.f","power"))
+myft<- add_header_lines(myft, values =c("entendre") )
+myft
+anova_divlex01<- lm(verbepassé ~ destination+Year+Taille_hotel+prix_classe+redacteur+note_avis, data=comment_X)
+sstable<-anova_stats(car::Anova(anova_divlex01, type = 3)) 
+myft <- flextable(sstable, col_keys = c("term", "df", "statistic", "p.value","cohens.f","power"))
+myft<- add_header_lines(myft, values =c("verbepassé") )
+myft
+anova_divlex01<- lm(verbefutur ~ destination+Year+Taille_hotel+prix_classe+redacteur+note_avis, data=comment_X)
+sstable<-anova_stats(car::Anova(anova_divlex01, type = 3)) 
+myft <- flextable(sstable, col_keys = c("term", "df", "statistic", "p.value","cohens.f","power"))
+myft<- add_header_lines(myft, values =c("verbefutur") )
+myft
+anova_divlex01<- lm(verbeprésent ~ destination+Year+Taille_hotel+prix_classe+redacteur+note_avis, data=comment_X)
+sstable<-anova_stats(car::Anova(anova_divlex01, type = 3)) 
+myft <- flextable(sstable, col_keys = c("term", "df", "statistic", "p.value","cohens.f","power"))
+myft<- add_header_lines(myft, values =c("verbeprésent") )
+myft
+anova_divlex01<- lm(anxiété ~ destination+Year+Taille_hotel+prix_classe+redacteur+note_avis, data=comment_X)
+sstable<-anova_stats(car::Anova(anova_divlex01, type = 3)) 
+myft <- flextable(sstable, col_keys = c("term", "df", "statistic", "p.value","cohens.f","power"))
+myft<- add_header_lines(myft, values =c("Anxiété") )
+myft
+anova_divlex01<- lm(colère ~ destination+Year+Taille_hotel+prix_classe+redacteur+note_avis, data=comment_X)
+sstable<-anova_stats(car::Anova(anova_divlex01, type = 3)) 
+myft <- flextable(sstable, col_keys = c("term", "df", "statistic", "p.value","cohens.f","power"))
+myft<- add_header_lines(myft, values =c("colère") )
+myft
+anova_divlex01<- lm(tristesse ~ destination+Year+Taille_hotel+prix_classe+redacteur+note_avis, data=comment_X)
+sstable<-anova_stats(car::Anova(anova_divlex01, type = 3)) 
+myft <- flextable(sstable, col_keys = c("term", "df", "statistic", "p.value","cohens.f","power"))
+myft<- add_header_lines(myft, values =c("tristesse") )
+myft
+
+foo1<- aggregate(cbind(sentir,voir,entendre,verbepassé,verbefutur,verbeprésent,anxiété,colère,tristesse)~destination,data=comment_X,FUN="mean") %>% mutate(categorie=destination) %>% dplyr::select(-destination)
+foo2<- aggregate(cbind(sentir,voir,entendre,verbepassé,verbefutur,verbeprésent,anxiété,colère,tristesse)~Year ,data=comment_X,FUN="mean") %>% mutate(categorie=Year)%>% dplyr::select(-Year)
+foo3<- aggregate(cbind(sentir,voir,entendre,verbepassé,verbefutur,verbeprésent,anxiété,colère,tristesse)~Taille_hotel ,data=comment_X,FUN="mean") %>% mutate(categorie=Taille_hotel)%>% dplyr::select(-Taille_hotel)
+foo4<- aggregate(cbind(sentir,voir,entendre,verbepassé,verbefutur,verbeprésent,anxiété,colère,tristesse)~prix_classe ,data=comment_X,FUN="mean") %>% mutate(categorie=prix_classe)%>% dplyr::select(-prix_classe)
+foo5<- aggregate(cbind(sentir,voir,entendre,verbepassé,verbefutur,verbeprésent,anxiété,colère,tristesse)~redacteur ,data=comment_X,FUN="mean") %>% mutate(categorie=redacteur)%>% dplyr::select(-redacteur)
+foo6<- aggregate(cbind(sentir,voir,entendre,verbepassé,verbefutur,verbeprésent,anxiété,colère,tristesse)~note_avis ,data=comment_X,FUN="mean") %>% mutate(categorie=note_avis)%>% dplyr::select(-note_avis)
+
+foo<-rbind(foo1,foo2,foo3,foo4,foo5,foo6)
+myft04 <- flextable(foo, col_keys =c("categorie","sentir","voir","entendre","verbepassé","verbefutur","verbeprésent","anxiété","colère","tristesse"))
+myft04
+
+```
+
+
+##tableau de synthése topics
+
+
+```{r synth, fig.width=8, fig.height=4.5, caption ="Topic LDA"}
+
+foo<- aggregate(cbind(dithyrambe,Chaleurrelation,rapportqltepx,transit,interactionclient,motulife,cartepostale,potentialite)~destination ,data=comment_X,FUN="mean")
+foo<-melt(foo)
+g17e<-ggplot(foo, aes(x=destination, y=value,group=variable))+geom_bar(stat="identity",aes(fill=variable))+theme_minimal()+theme_minimal()
+g17e
+
+foo<- aggregate(cbind(dithyrambe,Chaleurrelation,rapportqltepx,transit,interactionclient,motulife,cartepostale,potentialite)~Year ,data=comment_X,FUN="mean")
+foo<-melt(foo)
+g17e<-ggplot(foo, aes(x=Year, y=value,group=variable))+geom_bar(stat="identity",aes(fill=variable))+theme_minimal()+theme_minimal()
+g17e
+
+foo<- aggregate(cbind(dithyrambe,Chaleurrelation,rapportqltepx,transit,interactionclient,motulife,cartepostale,potentialite)~Taille_hotel ,data=comment_X,FUN="mean")
+foo<-melt(foo)
+g17a<-ggplot(foo, aes(x=Taille_hotel, y=value,group=variable))+geom_bar(stat="identity",aes(fill=variable))+theme_minimal()+theme_minimal()
+g17a
+
+foo<- aggregate(cbind(dithyrambe,Chaleurrelation,rapportqltepx,transit,interactionclient,motulife,cartepostale,potentialite)~prix_classe
+                  ,data=comment_X,FUN="mean")
+foo<-melt(foo)
+g17b<-ggplot(foo, aes(x=prix_classe, y=value,group=variable))+geom_bar(stat="identity",aes(fill=variable))+theme_minimal()+theme_minimal()
+g17b
+
+foo<- aggregate(cbind(dithyrambe,Chaleurrelation,rapportqltepx,transit,interactionclient,motulife,cartepostale,potentialite)~redacteur
+                  ,data=comment_X,FUN="mean")
+foo<-melt(foo)
+g17c<-ggplot(foo, aes(x=redacteur, y=value,group=variable))+geom_bar(stat="identity",aes(fill=variable))+theme_minimal()+theme_minimal()
+g17c
+
+foo<- aggregate(cbind(dithyrambe,Chaleurrelation,rapportqltepx,transit,interactionclient,motulife,cartepostale,potentialite)~note_avis,data=comment_X,FUN="mean")
+foo<-melt(foo)
+g17d<-ggplot(foo, aes(x=note_avis, y=value,group=variable))+geom_bar(stat="identity",aes(fill=variable))+theme_minimal()+theme_minimal()
+g17d
+
+anova_divlex01<- lm(dithyrambe ~ destination+Year+Taille_hotel+prix_classe+redacteur+note_avis, data=comment_X)
+sstable<-anova_stats(car::Anova(anova_divlex01, type = 3)) 
+myft <- flextable(sstable, col_keys = c("term", "df", "statistic", "p.value","cohens.f","power"))
+myft<- add_header_lines(myft, values =c("dithyrambe") )
+myft
+anova_divlex01<- lm(Chaleurrelation ~ destination+Year+Taille_hotel+prix_classe+redacteur+note_avis, data=comment_X)
+sstable<-anova_stats(car::Anova(anova_divlex01, type = 3)) 
+myft <- flextable(sstable, col_keys = c("term", "df", "statistic", "p.value","cohens.f","power"))
+myft<- add_header_lines(myft, values =c("Chaleurrelation") )
+myft
+anova_divlex01<- lm(rapportqltepx ~ destination+Year+Taille_hotel+prix_classe+redacteur+note_avis, data=comment_X)
+sstable<-anova_stats(car::Anova(anova_divlex01, type = 3)) 
+myft <- flextable(sstable, col_keys = c("term", "df", "statistic", "p.value","cohens.f","power"))
+myft<- add_header_lines(myft, values =c("rapportqltepx") )
+myft
+anova_divlex01<- lm(transit ~ destination+Year+Taille_hotel+prix_classe+redacteur+note_avis, data=comment_X)
+sstable<-anova_stats(car::Anova(anova_divlex01, type = 3)) 
+myft <- flextable(sstable, col_keys = c("term", "df", "statistic", "p.value","cohens.f","power"))
+myft<- add_header_lines(myft, values =c("transit") )
+myft
+anova_divlex01<- lm(interactionclient ~ destination+Year+Taille_hotel+prix_classe+redacteur+note_avis, data=comment_X)
+sstable<-anova_stats(car::Anova(anova_divlex01, type = 3)) 
+myft <- flextable(sstable, col_keys = c("term", "df", "statistic", "p.value","cohens.f","power"))
+myft<- add_header_lines(myft, values =c("interactionclient") )
+myft
+anova_divlex01<- lm(motulife ~ destination+Year+Taille_hotel+prix_classe+redacteur+note_avis, data=comment_X)
+sstable<-anova_stats(car::Anova(anova_divlex01, type = 3)) 
+myft <- flextable(sstable, col_keys = c("term", "df", "statistic", "p.value","cohens.f","power"))
+myft<- add_header_lines(myft, values =c("motulife") )
+myft
+anova_divlex01<- lm(cartepostale ~ destination+Year+Taille_hotel+prix_classe+redacteur+note_avis, data=comment_X)
+sstable<-anova_stats(car::Anova(anova_divlex01, type = 3)) 
+myft <- flextable(sstable, col_keys = c("term", "df", "statistic", "p.value","cohens.f","power"))
+myft<- add_header_lines(myft, values =c("cartepostale") )
+myft
+anova_divlex01<- lm(potentialite ~ destination+Year+Taille_hotel+prix_classe+redacteur+note_avis, data=comment_X)
+sstable<-anova_stats(car::Anova(anova_divlex01, type = 3)) 
+myft <- flextable(sstable, col_keys = c("term", "df", "statistic", "p.value","cohens.f","power"))
+myft<- add_header_lines(myft, values =c("potentialite") )
+myft
+
+foo1<- aggregate(cbind(dithyrambe,Chaleurrelation,rapportqltepx,transit,interactionclient,motulife,cartepostale,potentialite)~destination ,data=comment_X,FUN="mean") %>% mutate(categorie=destination)%>% dplyr::select(-destination)
+foo2<- aggregate(cbind(dithyrambe,Chaleurrelation,rapportqltepx,transit,interactionclient,motulife,cartepostale,potentialite)~Year ,data=comment_X,FUN="mean") %>% mutate(categorie=Year)%>% dplyr::select(-Year)
+foo3<- aggregate(cbind(dithyrambe,Chaleurrelation,rapportqltepx,transit,interactionclient,motulife,cartepostale,potentialite)~Taille_hotel ,data=comment_X,FUN="mean") %>% mutate(categorie=Taille_hotel)%>% dplyr::select(-Taille_hotel)
+foo4<- aggregate(cbind(dithyrambe,Chaleurrelation,rapportqltepx,transit,interactionclient,motulife,cartepostale,potentialite)~prix_classe ,data=comment_X,FUN="mean") %>% mutate(categorie=prix_classe)%>% dplyr::select(-prix_classe)
+foo5<- aggregate(cbind(dithyrambe,Chaleurrelation,rapportqltepx,transit,interactionclient,motulife,cartepostale,potentialite)~redacteur ,data=comment_X,FUN="mean") %>% mutate(categorie=redacteur)%>% dplyr::select(-redacteur)
+foo6<- aggregate(cbind(dithyrambe,Chaleurrelation,rapportqltepx,transit,interactionclient,motulife,cartepostale,potentialite)~note_avis ,data=comment_X,FUN="mean") %>% mutate(categorie=note_avis)%>% dplyr::select(-note_avis)
+
+foo<-rbind(foo1,foo2,foo3,foo4,foo5,foo6)
+myft05 <- flextable(foo, col_keys = c("categorie","dithyrambe","Chaleurrelation", "rapportqltepx","transit","interactionclient","motulife","cartepostale","potentialite"))
+myft05
+
+```
+
+#qu'est-ce qui fait une bonne note ?
+
+```{r notesynth }
+foo<- aggregate(cbind(dithyrambe,Chaleurrelation,rapportqltepx,transit,interactionclient,motulife,cartepostale,potentialite)~note_avis,data=comment_X,FUN="mean")
+foo<-melt(foo)
+gN1<-ggplot(foo, aes(x=note_avis,y=value,group=variable))+geom_bar(stat="identity",aes(fill=variable))+theme_minimal()+theme_minimal()
+gN1
+
+foo1<- aggregate(cbind(sentir,voir,entendre)~note_avis,data=comment_X,FUN="mean")
+foo1<-melt(foo1)
+gN2<-ggplot(foo1, aes(x=note_avis, y=value,group=variable))+geom_line(aes(color=variable),size=2)+theme_minimal()+scale_color_manual(values=wes_palette(n=3, name="Zissou1"))+coord_flip()
+
+foo2<- aggregate(cbind(verbepassé,verbefutur,verbeprésent)~note_avis,data=comment_X,FUN="mean")
+foo2<-melt(foo2)
+gN3<-ggplot(foo2, aes(x=note_avis, y=value,group=variable))+geom_line(aes(color=variable),size=2)+theme_minimal()+scale_color_manual(values=wes_palette(n=3, name="Zissou1"))+labs(y = "densité", caption = "") +coord_flip()
+
+
+foo3<- aggregate(cbind(anxiété,colère,tristesse)~note_avis,data=comment_X,FUN="mean")
+foo3<-melt(foo3)
+gN4<-ggplot(foo3, aes(x=note_avis, y=value,group=variable))+geom_line(aes(color=variable),size=2)+theme_minimal()+scale_color_manual(values=wes_palette(n=4, name="Zissou1"))+coord_flip()
+
+grid.arrange(gN2,gN3,gN4, nrow=3)
+
+foo4<- aggregate(cbind(TTR,C)~note_avis ,data=comment_X,FUN="mean")
+foo4<-melt(foo4)
+gN4<-ggplot(foo4, aes(x=note_avis, y=value,group=variable))+geom_line(size=2,aes(color=variable))+facet_grid(variable~.,scale="free")+theme_minimal()+theme(legend.position="none")+scale_color_manual(values=wes_palette(n=3,name="Zissou1"))+theme(axis.text.x = element_text(angle = 45))+labs(title = "Diversité lexicale : l'effet de destination", x="destination", y="moyenne",caption = "")
+gN4
+
+foo5<- aggregate(cbind(ARI,Coleman.Liau.grade)~note_avis,data=comment_X,FUN="mean")
+foo5<-melt(foo5)
+gN5<-ggplot(foo5, aes(x=note_avis, y=value,group=variable))+geom_line(size=2,aes(color=variable))+facet_grid(variable~.,scale="free")+theme_minimal()+theme(legend.position="none")+theme(legend.position ="none")+scale_color_manual(values=wes_palette(n=4,name="Zissou1"))+theme(axis.text.x = element_text(angle = 45))+labs(title = "Lisibilité : l'effet de notation", x="destination", y="moyenne",caption = "")
+gN5
+
+foo6<- aggregate(cbind(positivity,negativity,expressivity)~note_avis ,data=comment_X,FUN="mean")
+foo6<-melt(foo6)
+gN6<-ggplot(foo6, aes(x=note_avis, y=value,group=variable))+geom_line(size=2,aes(color=variable))+facet_grid(variable~.,scale="free")+theme_minimal()+labs(title = "Sentiment : l'effet du jugement", x="Note", y="moyenne",caption = "")+ theme(legend.position="none")+scale_color_manual(values=wes_palette(n=5,name="Zissou1"))+theme(axis.text.x = element_text(angle = 45))
+gN6
+```
+
+
+
+le dernier graphique fait apparaitre des profils de notes bien distincts : ce qui distingue les 5* des autres c'est le caractère chaleureux de la relation établie avec le personnel et l'expérience qui est traduite de manière dythirambique et enthousiaste.  
+
+testons l'hypothèse avec un logit ordonné et binaire . on utilise http://larmarange.github.io/analyse-R/regression-logistique.html#regression-logistique-ordinale
+
+la table de confusion nous donne 69% de bien classé. 
+
+```{r logit ,  fig.height=8}
+
+comment_X$note_avis <- factor(comment_X$note_avis, c("1", "2", "3","4","5"), ordered = TRUE)
+#freq(comment_X$note_avis )
+#logit ordinal
+
+library(ordinal)
+library(broom)
+library(effects)
+library(caret) 
+
+
+rego <- clm(note_avis ~-1+dithyrambe+Chaleurrelation+transit+rapportqltepx+interactionclient+motulife+cartepostale+potentialite,link = "logit",scale = ~rapportqltepx+cartepostale,data = comment_X)
+summary(rego)
+
+tmp1 <- tidy(rego, conf.int = TRUE, exponentiate = TRUE)
+str(tmp1)
+ggplot(tmp1) + aes(x = estimate, y = term, xmin = conf.low, xmax = conf.high) + 
+  geom_vline(xintercept = 1) + geom_errorbarh() + geom_point() +scale_x_log10()+theme_minimal()
+
+#plot(allEffects(rego))
+```
+
+
+```{r logit_bin, fig.height=7 }
+
+#logit binaire
+
+comment_X$note_5 <-0
+comment_X$note_5[comment_X$note_avis==5] <- 1
+#freq(comment_X$note_avis )
+reg <- glm(note_5 ~ -1+dithyrambe+Chaleurrelation+rapportqltepx+transit+interactionclient+motulife+cartepostale+potentialite, 
+  data = comment_X, family = binomial(logit))
+reg
+exp(coef(reg))
+tmp <- tidy(reg, conf.int = TRUE, exponentiate = TRUE)
+str(tmp)
+ggplot(tmp) + aes(x = estimate, y = term, xmin = conf.low, xmax = conf.high) + 
+  geom_vline(xintercept = 1) + geom_errorbarh() + geom_point() +scale_x_log10()+theme_minimal()
+plot(allEffects(reg))
+
+#validation
+comment_X$pred <- predict(reg, type = "response", newdata = comment_X)
+comment_X$pred_c<-"<5*"
+comment_X$pred_c[comment_X$pred > 0.5]<-"=5*"
+comment_X$true<-"<5*"
+comment_X$true[comment_X$note_5==1]<-"=5*"
+
+confusion<-table(comment_X$pred_c, comment_X$true)
+confusionMatrix(confusion, positive ="=5*")
+precision(confusion)
+recall(confusion)
+F_meas(confusion)
+```
+
+```{r logit_comp, fig.height= 12}
+library(compositions)
+comp<-subset(comment_X,select=c(dithyrambe,Chaleurrelation,rapportqltepx,transit,interactionclient,motulife,cartepostale,potentialite))
+comp2<-clr(comp)
+note_5<-subset(comment_X,select=c(note_5))
+comp3<-cbind(note_5,comp2)
+
+regc <- glm(note_5 ~ -1+dithyrambe+Chaleurrelation+rapportqltepx+transit+interactionclient+motulife+cartepostale, 
+  data = comp3, family = binomial(logit))
+summary(regc)
+
+tmp2 <- tidy(regc, conf.int = TRUE, exponentiate = TRUE)
+ggplot(tmp2) + aes(x = estimate, y = term, xmin = conf.low, xmax = conf.high) + 
+  geom_vline(xintercept = 1) + geom_errorbarh() + geom_point() +scale_x_log10()+theme_minimal()
+
+plot(allEffects(regc))
+
+note_5<-subset(comment_X,select=c(note_avis))
+comp4<-cbind(note_5,comp2)
+library(MASS)
+regp<- polr(note_avis ~ dithyrambe+Chaleurrelation+rapportqltepx+transit+interactionclient+motulife+cartepostale, data = comp4, Hess=TRUE)
+summary(regp)
+plot(allEffects(regp))
+
+```
+
+
+
+##  autres corrélations indicateurs
+
+```{r corindic2, fig.width=8, fig.height=4.5, caption ="Topic LDA"}
+#C,K, Maas,positivity,negativity, expressivity,sent_score
+M<-subset(comment_X, select=c(meanSentenceLength , meanWordSyllables,nbcar.x,WPS,WC,ARI, Coleman.Liau.grade,TTR,C,Maas,sent_score))
+M <- cor(M)
+library(corrplot)
+corrplot(M, type="lower")
+
+corrplot.mixed(M)
+
+```
