@@ -1,0 +1,249 @@
+Archipel	Ile	id	nom	Hotel	note_moy	note_sd	avis	note_relevee	chambres	prix	desc	categorie
+Tuamotu - Gambiers	Ahe	201	Pension Cocoperle Lodge		0	0		3	6	13250	Atoll (sable blanc lagon)	
+Tuamotu - Gambiers	Ahe	202	Pension Raita		0	0			3	14864	Atoll (sable blanc lagon ponton)	
+Iles Sous-le-Vent (Raromata'i)	Bora Bora	141	Blue Heaven Island Lodge	Blue Heaven Island lodge Hôtel, Bora-Bora	3,9	1,2	35	3,5	5	24921	Bord de mer (sable blanc lagon)	Lodge
+Iles Sous-le-Vent (Raromata'i)	Bora Bora	138	Bora Bora Ecolodge		0	0		4	10	15400	Plaine, accès mer	Lodge
+Iles Sous-le-Vent (Raromata'i)	Bora Bora	140	Bora Bora Fishing Paradise Lodge	Bora Bora Fishing Paradise Lodge, Bora-Bora	4,8	0,4	91		3	38640	Plaine, chez l'habitant	Lodge
+Iles Sous-le-Vent (Raromata'i)	Bora Bora	39	Bora Bora Pearl Beach Resort & Spa	Hotel Bora Bora Pearl Beach Resort & Spa	4,5	0,7	890	4,5	80	74354	Motu (sable blanc lagon), bungalow sur pilotis	Resort
+Iles Sous-le-Vent (Raromata'i)	Bora Bora	142	Bora Bungalove sur le lagon	Bora Bungalove sur le lagon Cottage, Bora-Bora	4,7	1,2	56	4,5	2	23748	Bord de mer (lagon)	Lodge
+Iles Sous-le-Vent (Raromata'i)	Bora Bora	139	Bora Vaite Lodge	Bora Vaite Lodge, Bora-Bora/Vaitape	4,7	0,6	14	3	13	10668	Plaine, accès mer	Lodge
+Iles Sous-le-Vent (Raromata'i)	Bora Bora	135	Chez Nono		0	0		4	6	15675	Bord de mer (sable blanc lagon)	Hôtel famillial
+Iles Sous-le-Vent (Raromata'i)	Bora Bora	136	Chez Robert et Ti		0	0		3,5	7	10100	Bord de mer (sable blanc lagon)	Hôtel famillial
+Iles Sous-le-Vent (Raromata'i)	Bora Bora	29	Conrad Bora Bora Nui Resort & Spa		0	0		5	114	132076	Motu (sable blanc lagon), bungalow sur pilotis	Resort
+Iles Sous-le-Vent (Raromata'i)	Bora Bora	38	Four Seasons Resort Bora Bora	Hotel Four Seasons Resort Bora-Bora	4,7	0,6	256	5	107	203431	Motu (sable blanc lagon), bungalow sur pilotis	Resort
+Iles Sous-le-Vent (Raromata'i)	Bora Bora	30	Hôtel Matira	Hotel Matira, Bora-Bora	4,1	0,8	236	4	14	25920	Bord de mer (sable blanc lagon)	Hotel
+Iles Sous-le-Vent (Raromata'i)	Bora Bora	36	InterContinental Bora Bora Le Moana Resort	InterContinental Bora Bora Le Moana Resort Hôtel, Bora-Bora	4,7	0,6	384	4	62	96000	Bord de mer (sable blanc lagon), bungalow sur pilotis	Resort
+Iles Sous-le-Vent (Raromata'i)	Bora Bora	35	InterContinental Bora Bora Resort & Thalasso Spa	Hotel InterContinental Bora Bora Resort & Thalasso Spa	4,7	0,7	294	5	80	144000	Motu (sable blanc lagon), bungalow sur pilotis	Resort
+Iles Sous-le-Vent (Raromata'i)	Bora Bora	32	Le Maitai Polynesia Bora Bora	Maitai Polynesia Bora Bora Hôtel, Bora-Bora	4	0,9	699	3	74	49000	Bord de mer (sable blanc lagon), bungalow sur pilotis	Hotel
+Iles Sous-le-Vent (Raromata'i)	Bora Bora	31	Le Méridien Bora Bora	Le Meridien Bora Bora Hôtel, Bora-Bora	4,6	0,8	388	5	99	83589	Motu (sable blanc lagon), bungalow sur pilotis	Resort
+Iles Sous-le-Vent (Raromata'i)	Bora Bora	144	Oa Oa Lodge	Oa Oa Lodge, Bora-Bora/Vaitape	4,2	0,8	92	3	8	18198	Bord de mer (lagon), bungalow sur pilotis	Lodge
+Iles Sous-le-Vent (Raromata'i)	Bora Bora	145	Pension Alice et Raphael	Hotel Pension Alice et Raphael Chambres d'hôtes	5	0,2	194	3	2	21724	Motu, sable blanc lagon	Hôtel famillial
+Iles Sous-le-Vent (Raromata'i)	Bora Bora	134	Pension Chez Rosina	Pension Chez Rosina, Bora-Bora	2,5	2	15	4,5	7	10000	Plaine, chez l'habitant	Dortoir
+Iles Sous-le-Vent (Raromata'i)	Bora Bora	132	Pension Noni	Hotel Pension Noni Chambres d'hôtes, Bora-Bora/Vaitape	4,5	0,6	18	4,5	3	7750	Plaine, accès mer	Hôtel famillial
+Iles Sous-le-Vent (Raromata'i)	Bora Bora	133	Rohotu Fare	Rohotu Fare Ranch, Bora-Bora	5	0	65	3	3	31087	Montagne, vue sur lagon	Hôtel famillial
+Iles Sous-le-Vent (Raromata'i)	Bora Bora	33	Sofitel Bora Bora Marara Beach Resort	Sofitel Bora Bora Marara Beach Resort Hôtel, Bora-Bora	3,8	1,2	183	4	55	50227	Bord de mer (sable blanc lagon), bungalow sur pilotis	Resort
+Iles Sous-le-Vent (Raromata'i)	Bora Bora	34	Sofitel Bora Bora Marara Private Island		0	0		4,5	31	71224	Motu (sable blanc lagon), bungalow sur pilotis	Resort
+Iles Sous-le-Vent (Raromata'i)	Bora Bora	143	Sunset Hill Lodge	Sunset Hill Lodge Hôtel, Bora-Bora	4,2	1,2	67	4,5	4	14440	Plaine	Lodge
+Iles Sous-le-Vent (Raromata'i)	Bora Bora	37	The St. Régis Bora Bora Resort	Hotel The St. Regis Bora Bora Resort	4,8	0,5	149	5	90	161352	Motu (sable blanc lagon), bungalow sur pilotis	Resort
+Iles Sous-le-Vent (Raromata'i)	Bora Bora	137	Village Temanuata	Village Temanuata, Bora-Bora	3,9	1,2	150	3	15	18120	Bord de mer (sable blanc lagon)	Hotel
+Iles Sous-le-Vent (Raromata'i)	Bora Bora	315		Villa Rea Hanaa, Bora-Bora/Vaitape	4,5	0,8	45	4,5	5	245000		Resort
+Tuamotu - Gambiers	Fakarava	193	Havaiki Lodge		0	0		2	15	22828	Atoll (sable blanc lagon)	
+Tuamotu - Gambiers	Fakarava	192	KoriKori Lodge Fakarava		0	0		4,5	2	16000	Atoll, accès à la mer	Lodge
+Tuamotu - Gambiers	Fakarava	184	Motu Aito		0	0		4,5	6	12000	Motu privé (sable blanc lagon)	
+Tuamotu - Gambiers	Fakarava	189	Pension Paparara		0	0		2,5	4	26228	Atoll, lagon	Hôtel famillial
+Tuamotu - Gambiers	Fakarava	185	Pension Tokerau Village		0	0		3	4	13246	Atoll (sable blanc lagon)	Hôtel famillial
+Tuamotu - Gambiers	Fakarava	188	Pension Vaiama Village		0	0			6	13500	Atoll (sable blanc lagon)	Hôtel famillial
+Tuamotu - Gambiers	Fakarava	187	Pension Vekeveke Village		0	0			6	12600	Atoll (sable blanc lagon)	Hôtel famillial
+Tuamotu - Gambiers	Fakarava	191	Raimiti		0	0		2	15	22450	Atoll (sable blanc lagon)	
+Tuamotu - Gambiers	Fakarava	190	Relais Marama		0	0			5	8000	Atoll, accès à la mer	
+Tuamotu - Gambiers	Fakarava	186	Tetamanu Village		0	0			5	20000	Atoll (sable blanc lagon)	
+Iles Marquise	Hiva hoa	317		Hotel Relais Moeahu Chambres d'hôtes, Hiva Oa, Îles Marquises	3,7	1,5	37	3,5	8	10000		Hôtel famillial
+Marquises	Hiva Oa	215	Châlets Hanakee	Chalets Hanakee, Hiva Oa, Îles Marquises	4,9	0,3	64	3	6	14000	Montagne, vue sur l'océan	Hôtel famillial
+Marquises	Hiva Oa	45	Hiva Oa Hanakee Pearl Lodge	Hanakee Hiva Oa Pearl Lodge Hôtel, Îles Marquises	4,3	1,1	184	4	20	26961	Montagne, vue sur l'océan	Lodge
+Marquises	Hiva Oa	217	Pension Areke Chez Kayser		0	0		5	5		Montagne, vue sur l'océan	
+Marquises	Hiva Oa	213	Pension Kanahau	Hotel Pension Kanahau Auberge, Hiva Oa, Îles Marquises	4,7	0,7	132	4,5	11	11554	Montagne, vue sur l'océan	Hôtel famillial
+Marquises	Hiva Oa	216	Pension Villa Enata	Hotel Pension Villa Enata Auberge	5	0	45	4	4	12689	Montagne, vue sur l'océan	Hôtel famillial
+Marquises	Hiva Oa	214	Temetiu Village	Pension Temetiu Village Chalet, Atuona	4,2	0,9	125	3	6	41148	Montagne, vue sur l'océan	Hôtel famillial
+Iles Sous-le-Vent (Raromata'i)	Huahine	108	Camping Hiva Plage		0	0		4		3936	Bord de mer (sable blanc lagon)	
+Iles Sous-le-Vent (Raromata'i)	Huahine	98	Châlet Tipanier	Hotel Chalet Tipanier Chambres d'hôtes	3,5	0,7	7	4	2	20416	Plaine	Hôtel famillial
+Iles Sous-le-Vent (Raromata'i)	Huahine	22	Maitai Lapita Village Huahine	Maitai Lapita Village Huahine Hôtel, Fare	4,3	0,8	545	3	32	32942	Bord de mer (sable blanc lagon), Lac privé	Resort
+Iles Sous-le-Vent (Raromata'i)	Huahine	105	Moana Lodge	Hotel Moana Lodge Chambres d'hôtes	4,9	0,5	316	5	4	16000	Bord de mer (sable blanc lagon)	Lodge
+Iles Sous-le-Vent (Raromata'i)	Huahine	99	Motel Vanille	Motel Vanille Pension, Huahine	3,6	1,6		4	6	13150	Plaine	Hôtel famillial
+Iles Sous-le-Vent (Raromata'i)	Huahine	100	Pension Ariitere	Hotel Pension Ariitere Chambres d'hôtes	4,4	0,7	92	4,5	6	7500	Plaine	Hôtel famillial
+Iles Sous-le-Vent (Raromata'i)	Huahine	103	Pension Chez Guynette	Hotel Chez Guynette Chambres d'hôtes	4,2	0,4	21	4	7	5900	Centre village, accès plage	Dortoir
+Iles Sous-le-Vent (Raromata'i)	Huahine	104	Pension Fare Ara	Pension Fare Ara Villa, Huahine	4,5	0,7	186	4,5	8	11932	Plaine	Hôtel famillial
+Iles Sous-le-Vent (Raromata'i)	Huahine	97	Pension Fare Maeva	Pension Fare Maeva Ranch, Huahine	4	1,2	131	3,5	15	10616	Bord de mer (récif océan)	Lodge
+Iles Sous-le-Vent (Raromata'i)	Huahine	112	Pension Fetia		0	0		4,5	4		Motu, sable blanc lagon	Hôtel famillial
+Iles Sous-le-Vent (Raromata'i)	Huahine	101	Pension Meherio	Hotel Pension Meherio Chambres d'hôtes	4,5	0,7	152	4,5	7	12000	Plaine, accès plage	Hôtel famillial
+Iles Sous-le-Vent (Raromata'i)	Huahine	110	Pension Nahe Toe Toe		0	0		3	2	7060	Bord de mer (lagon)	Hôtel famillial
+Iles Sous-le-Vent (Raromata'i)	Huahine	106	Pension Poetaina		0	0			4	16750	Plaine / Motu	Hôtel famillial
+Iles Sous-le-Vent (Raromata'i)	Huahine	109	Pension Tupuna	Pension Tupuna Ranch, Huahine	4,6	0,7	156	2	4	11402	Bord de mer (lagon)	Hôtel famillial
+Iles Sous-le-Vent (Raromata'i)	Huahine	102	Rande's Shack	Hotel Rande's Shack Chambres d'hôtes	5	0	15	5	2	12000	Bord de mer (sable blanc lagon)	Hôtel famillial
+Iles Sous-le-Vent (Raromata'i)	Huahine	24	Relais Mahana	Hotel Le Mahana, Huahine	4,4	0,9	1310	3	32	28101	Bord de mer (sable blanc lagon)	Hotel
+Iles Sous-le-Vent (Raromata'i)	Huahine	23	Royal Huahine	Hotel Royal Huahine Resort	3,5	1,2	209	3,5	22	22225	Bord de mer (sable blanc lagon), bungalow sur pilotis	Hotel
+Iles Sous-le-Vent (Raromata'i)	Huahine	111	Tifaifai et Café	Tifaifai et Cafe, Huahine	5	0	35	5	2	11100	Motu, sable blanc lagon	Hôtel famillial
+Iles Sous-le-Vent (Raromata'i)	Huahine	107	Villas Bougainville	Villas Bougainville, Huahine	3,2	1,7	19	3	6	20000	Plaine, accès lagon par ponton	Hôtel famillial
+Tuamotu - Gambiers	Kauehi	203	Kauehi Lodge		0	0		4,5	4	12500	Atoll (sable blanc lagon ponton)	
+Tuamotu - Gambiers	Makemo	200	Teanuanua Beach Pearls		0	0		4,5	9	10000	Atoll (sable blanc lagon)	
+Tuamotu - Gambiers	Mangareva	208	Pension Bianca et Benoît		0	0		3,5	8	18000	Montagne, vue sur l'océan	
+Tuamotu - Gambiers	Mangareva	207	Pension Maro'i		0	0		5	4	17895	Bord de mer, ponton lagon	
+Tuamotu - Gambiers	Manihi	205	Manihi Pearl Village		0	0		4,5	4	10000	Atoll, lagon	
+Tuamotu - Gambiers	Manihi	204	Nanihi Paradise		0	0		3,5	3	15390	Atoll (sable blanc lagon ponton)	
+Tuamotu - Gambiers	Manihi	206	Pension Poerani Nui		0	0		4,5	4	36030	Atoll (sable blanc lagon)	
+Tuamotu - Gambiers	Mataiva	183	Ariiheevai		0	0		4,5	8	8947	Atoll (sable blanc lagon)	
+Tuamotu - Gambiers	Mataiva	182	Mataiva Village		0	0		4,5	9	7500	Atoll (sable blanc lagon)	
+Iles Sous-le-Vent (Raromata'i)	Maupiti	156	(Chez Janine)	Hotel Fare Pae'ao (Chez Janine) Auberge	3,6	1,4	120	2,5	6	18729	Motu, sable blanc lagon	Hôtel famillial
+Iles Sous-le-Vent (Raromata'i)	Maupiti	153	Le Kuriri	Le Kuriri Hôtel, Maupiti Island	3,8	1,4	46	2	4	18900	Motu, sable blanc lagon	Hôtel famillial
+Iles Sous-le-Vent (Raromata'i)	Maupiti	146	Maupiti Paradise		0	0		2	5	12500	Bord de mer (sable blanc lagon)	
+Iles Sous-le-Vent (Raromata'i)	Maupiti	147	Maupiti Residence		0	0		5	2	12181	Bord de mer (sable blanc lagon)	
+Iles Sous-le-Vent (Raromata'i)	Maupiti	157	Pension Auira	Hotel Pension Auira Chambres d'hôtes	3,6	1,7	57	4	3	15000	Motu, sable blanc lagon	Hôtel famillial
+Iles Sous-le-Vent (Raromata'i)	Maupiti	150	Pension Espace Beach	Hotel Pension Espace Beach Chambres d'hôtes	3,3	1,5	124	4	6	22000	Bord de mer (sable blanc lagon)	Hôtel famillial
+Iles Sous-le-Vent (Raromata'i)	Maupiti	149	Pension Ludo et Moyra	Hotel Pension Ludo et Moyra Chambres d'hôtes	4,2	1,2	109	4,5	2	15000	Plaine	Hôtel famillial
+Iles Sous-le-Vent (Raromata'i)	Maupiti	154	Pension Maupiti Village		0	0		4	5	17000	Bord de mer (sable blanc lagon)	
+Iles Sous-le-Vent (Raromata'i)	Maupiti	152	Pension Papahani	Hotel Pension Papahani Auberge	4	1,1	191	4	5	12000	Motu, sable blanc lagon	Hôtel famillial
+Iles Sous-le-Vent (Raromata'i)	Maupiti	159	Pension Taputea	Hotel Pension Taputea Chambres d'hôtes	4,6	0,8	78	4	2	4500	Plaine, chez l'habitant	Hôtel famillial
+Iles Sous-le-Vent (Raromata'i)	Maupiti	151	Pension Tautiare Village	Hotel Pension Tautiare Village Chambres d'hôtes	4,2	1,2	106	4,5	4	16000	Plaine, chez l'habitant	Hôtel famillial
+Iles Sous-le-Vent (Raromata'i)	Maupiti	155	Pension Teheimana		0	0		4,5	3	15000	Bord de mer (sable blanc lagon)	
+Iles Sous-le-Vent (Raromata'i)	Maupiti	158	Pension Terama	Pension Terama Chambre d'hôtes, Maupiti Island	4,5	0,7	9	3	4	16000	Motu, sable blanc lagon	Hôtel famillial
+Iles Sous-le-Vent (Raromata'i)	Maupiti	148	Pension Tereia	Hotel Pension Tereia Chambres d'hôtes	4,7	0,6	165	5	2	18000	Bord de mer (sable blanc lagon)	Hôtel famillial
+Iles du Vent (Ni'amata'i)	Moorea	71	Anapa Beach	Hotel Anapa Beach Chambres d'hôtes	3	2,8	6	3	3	18669	Bord de mer (sable blanc lagon)	Hôtel famillial
+Iles du Vent (Ni'amata'i)	Moorea	95	Atuana Lodge		0	0		5	3	13000	Bord de mer (sable blanc lagon)	
+Iles du Vent (Ni'amata'i)	Moorea	19	Club Bali Hai Moorea Hôtel	Club Bali Hai Moorea Hotel, Polynésie française	4,1	1,1	57	4,5	39	20429	Bord de mer (sable blanc lagon), bungalow sur pilotis	Hotel
+Iles du Vent (Ni'amata'i)	Moorea	92	Fare Arana		0	0		3	8	10984	Montagne, vue sur lagon	
+Iles du Vent (Ni'amata'i)	Moorea	94	Fare Aute		0	0		3	3	12136	Bord de mer (sable blanc lagon)	
+Iles du Vent (Ni'amata'i)	Moorea	88	Fare d'hôte Tehuarupe Hotel		0	0		4,5	4		Montagne vue sur lagon	
+Iles du Vent (Ni'amata'i)	Moorea	86	Fare Edith	Fare Edith Chalet, Moorea/Haapiti	3,2	1,4	57	3,5	4	15000	Bord de mer (sable blanc lagon)	
+Iles du Vent (Ni'amata'i)	Moorea	77	Fare Maheata	Fare Maheata Chalet, Pihaena	4,4	0,7	44	2,5	5	14501	Bord de mer (sable blanc lagon)	
+Iles du Vent (Ni'amata'i)	Moorea	89	Fare Tokoau	Fare Tokoau Chalet, Moorea/Hauru	4,8	0,4	43	4,5	2	11277	Bord de mer (sable blanc lagon)	
+Iles du Vent (Ni'amata'i)	Moorea	79	Fare Vaihere		0	0		3,5	4	16052	Bord de mer (lagon)	
+Iles du Vent (Ni'amata'i)	Moorea	72	Green Lodge	Green Lodge Hôtel, Moorea	4,5	0,9	243	3	6	24896	Bord de mer (sable blanc récif océan)	
+Iles du Vent (Ni'amata'i)	Moorea	14	Hilton Moorea Lagoon Resort & Spa	Hotel Hilton Moorea Lagoon Resort & Spa, Polynésie française	4,5	0,8	1049	5	106	73646	Bord de mer (sable blanc lagon), bungalow sur pilotis	
+Iles du Vent (Ni'amata'i)	Moorea	20	Hôtel Fenua Mata'i'oa	Fenua Mata'i'oa Hôtel, Moorea/Haapiti	4,8	0,9	190	4	5	40697	Bord de mer (lagon)	
+Iles du Vent (Ni'amata'i)	Moorea	18	Hôtel Hibiscus	Hotel Hibiscus, Moorea, Polynésie française	3,9	1,1	1304	3	40	18916	Bord de mer (sablc blanc lagon)	
+Iles du Vent (Ni'amata'i)	Moorea	16	Hôtel Kaveka	Hotel Kaveka, Moorea, Polynésie française	3,3	1,1	90	2,5	25	19536	Bord de mer (sable blanc lagon)	
+Iles du Vent (Ni'amata'i)	Moorea	17	Hôtel Les Tipaniers	Hotel Les Tipaniers, Moorea	4,1	0,8	495	3	26	18283	Bord de mer (sable blanc lagon)	
+Iles du Vent (Ni'amata'i)	Moorea	15	InterContinental Moorea Resort & Spa	Hotel InterContinental Moorea Resort & Spa, Polynésie française	4,2	0,9	1784	4	142	42135	Bord de mer (sable blanc lagon), bungalow sur pilotis	
+Iles du Vent (Ni'amata'i)	Moorea	87	Linareva Moorea Beach Resort	Moorea Beach Lodge, Hauru	4,5	0,8	241	3	9	18133	Bord de mer (sable blanc lagon)	
+Iles du Vent (Ni'amata'i)	Moorea	12	Manava Beach Resort & Spa Moorea	Manava Beach Resort & Spa - Moorea Hôtel, Polynésie française	4,3	0,9	1238	4	94	42059	Bord de mer (sable blanc lagon), bungalow sur pilotis	
+Iles du Vent (Ni'amata'i)	Moorea	90	Mark's Place Moorea	Marks Place Moorea Villa, Polynésie française	3,2	1,8	110	3	7	11785	Plaine, jardin arboré	
+Iles du Vent (Ni'amata'i)	Moorea	82	Moorea Fare Miti	Hotel Moorea Fare Miti Chambres d'hôtes, Hauru	4,6	0,8	138	4,5	8	13480	Bord de mer (sable blanc lagon)	
+Iles du Vent (Ni'amata'i)	Moorea	73	Moorea Golf Lodge	Moorea Golf Lodge	1,4	0,5	7	3	4	16227	Bord de mer (sable blanc récif océan)	
+Iles du Vent (Ni'amata'i)	Moorea	93	Moorea Surf Bed and Breakfast	Hotel Moorea Surf Inn Chambres d'hôtes, Haapiti	4,8	0,4	86	2,5	4	10113	Bord de mer (lagon)	
+Iles du Vent (Ni'amata'i)	Moorea	74	Motel Albert		0	0		3	10	6500	Plaine	
+Iles du Vent (Ni'amata'i)	Moorea	76	Pension Motu Iti	Pension Motu Iti Ranch, Moorea	3	1,6	89	2,5	6	23615	Bord de mer (sable blanc lagon)	
+Iles du Vent (Ni'amata'i)	Moorea	91	Pension Tarariki	Pension Tarariki Hôtel, Moorea	4,1	1,2	106	4,5	5	9613	Bord de mer (sable blanc lagon)	
+Iles du Vent (Ni'amata'i)	Moorea	83	Pension Teataura	Hotel Pension Teataura Chambres d'hôtes	3,3	2,1	13	4	8	10000	Bord de mer (sable blanc lagon)	
+Iles du Vent (Ni'amata'i)	Moorea	80	Robinson's Cove Villas		0	0		5	3	27439	Bord de mer (sable blanc lagon)	
+Iles du Vent (Ni'amata'i)	Moorea	13	Sofitel Moorea Ia Ora Beach Resort	Hotel Sofitel Moorea Ia Ora Beach Resort, Polynésie française	4,4	0,9	1688	5	112	72386	Bord de mer (sable blanc lagon), bungalow sur pilotis	
+Iles du Vent (Ni'amata'i)	Moorea	81	Taoahere Beach House	Hotel Taoahere Beach House Chambres d'hôtes, Moorea, Polynésie française	4,9	0,3	78	5	3	26961	Bord de mer (sable blanc lagon)	
+Iles du Vent (Ni'amata'i)	Moorea	84	Tapu Lodge	Tapu Lodge Ranch, Moorea	2,5	1,3	10	3	8	17346	Montagne, vue sur lagon	
+Iles du Vent (Ni'amata'i)	Moorea	85	Te Fare Mihi		0	0		4,5	4	18500	Bord de mer (sable blanc lagon)	
+Iles du Vent (Ni'amata'i)	Moorea	96	Te Ora Hau	Hotel Te Ora Hau Chambres d'hôtes, Moorea/Afareaitu	3	1,4	12	3,5	19	16056	Bord de mer (sable blanc lagon)	
+Iles du Vent (Ni'amata'i)	Moorea	78	Village Faimano	Hotel Le Village Faimano Auberge	4	0	4	3,5	7	11000	TBA	
+Iles du Vent (Ni'amata'i)	Moorea	75	Village Temanoha	Village Temanoha Hôtel, Moorea, Polynésie française	4,2	0,8	25	4	6	11627	Plaine, jardin arboré	
+Iles du Vent (Ni'amata'i)	Moorea	307		Moorea Sunset Beach Complexe touristique spécialisé, Haapiti	3,9	1,4	272	4	40	23336		
+Iles du Vent (Ni'amata'i)	Moorea			Hotel Poerani Moorea Chambres d'hôtes, Polynésie française	4,9	0,5	204	5	4	100454		
+Iles du Vent (Ni'amata'i)	Moorea	302		Hotel Bed and Breakfast Moorea Fare Haurevaiti Chambres d'hôtes	4,9	0,3	49	5		17000		
+Iles du Vent (Ni'amata'i)	Moorea	303		Legends Resort Moorea Villa	3,8	1,5	30	4,5	4	30000		
+Iles du Vent (Ni'amata'i)	Moorea	318		Kahekaro Établissement avec services limités, Moorea	5	0	30	5	3	13000		
+Iles du Vent (Ni'amata'i)	Moorea	324		Hotel Fare Maeva Moorea Chambres d'hôtes	2	0	2	4,5	3	11000		
+Iles du Vent (Ni'amata'i)	Moorea	325		Moorea Camping	4	1,4	8	2,5				
+Marquises	Nuku Hiva	212	He'e Tai Inn	He'e Tai Inn Chalet, Nuku Hiva, Îles Marquises	2,8	1,1	47	3,5	15	11000	Centre village, accès à la mer	
+Marquises	Nuku Hiva	44	Keikahanui Nuku Hiva Pearl Lodge	Keikahanui Nuku Hiva Pearl Lodge Hôtel, Îles Marquises	4,6	0,7	239	3	20	29352	Montagne, vue sur l'océan	
+Marquises	Nuku Hiva	209	Pension Koku'u	Hotel Pension Koku'u Chambres d'hôtes	3,8	1,5	53	2	3	10000	Montagne, vue sur l'océan	
+Marquises	Nuku Hiva	210	Pension Mave Mai	Hotel Pension Mave Mai Chambres d'hôtes, Nuku Hiva, Îles Marquises	3,9	1,2	134	2,5	6	11000	Montagne, vue sur l'océan	
+Marquises	Nuku Hiva	211	Pension Moana Nui	Pension Moana Nui Chambre d'hôtes, Nuku Hiva, Îles Marquises	2,3	1,2	7	3	8	10880	Centre village, accès à la mer	
+Iles Sous-le-Vent (Raromata'i)	Raiatea	116	Chambre d'hôtes Temehani	Hotel Chambre d'hotes Temehani Chambres d'hôtes	5	0	50	2	3	13000	Bord de mer (lagon)	
+Iles Sous-le-Vent (Raromata'i)	Raiatea	113	Fare Vai Nui	Hôtel Fare Vai Nui, Raiatea, Polynésie française - Uturoa	4,9	0,3	264	3	4	27532	Bord de mer (lagon ponton)	
+Iles Sous-le-Vent (Raromata'i)	Raiatea	121	Hôtel Atiapiti	Hotel Atiapiti, Raiatea, Polynésie française	4,2	0,9	220	3	7	23750	Bord de mer (lagon ponton)	
+Iles Sous-le-Vent (Raromata'i)	Raiatea	114	Hôtel Hinano	Hotel Hinano, Raiatea, Polynésie française - Uturoa	4,2	0,8	42	4	10	8500	Centre village	
+Iles Sous-le-Vent (Raromata'i)	Raiatea	26	Opoa Beach Hôtel	Opoa Beach Hotel, Raiatea, Polynésie française - Uturoa	4,8	0,5	2183	3	9	26374	Bord de mer (lagon)	
+Iles Sous-le-Vent (Raromata'i)	Raiatea	118	Pension Les 3 Cascades	Pension les 3 cascades, Raiatea	3,4	1,2	71	2,5	9	10506	Montagne	
+Iles Sous-le-Vent (Raromata'i)	Raiatea	119	Pension Manava	La Pension Manava, Raiatea	4	0,9	85	4	5	10750	Montagne	
+Iles Sous-le-Vent (Raromata'i)	Raiatea	120	Pension Opeha	Pension Opeha, Raiatea	4,2	0,9	109	4,5	5	10000	Bord de mer (lagon ponton)	
+Iles Sous-le-Vent (Raromata'i)	Raiatea	123	Pension Te Maeva		0	0		3	2	10000	TBA	
+Iles Sous-le-Vent (Raromata'i)	Raiatea	25	Raiatea Lodge	Raiatea Lodge Hotel	4,7	0,6	551	3	15	37055	Accès plage	
+Iles Sous-le-Vent (Raromata'i)	Raiatea	124	Sunset Beach Motel	Hotel Sunset Beach Motel Resort, Raiatea, Polynésie française - Uturoa	4,4	0,6	169	3,5	22	14250	Bord de mer (sable blanc lagon ponton)	
+Iles Sous-le-Vent (Raromata'i)	Raiatea	115	Teavapiti Lodge	Teavapiti Lodge, Raiatea, Polynésie française - Uturoa	3,8	1,8	30	4	2	10363	Plaine	
+Iles Sous-le-Vent (Raromata'i)	Raiatea	117	Villa Tonoi	Villa Tonoi, Raiatea, Polynésie française - Uturoa	4,9	0,4	325	5	4	13867	Montagne, vue sur lagon	
+Iles Sous-le-Vent (Raromata'i)	Raiatea	122	Vini Beach Lodge		0	0		3	7	2500	Bord de mer (lagon ponton)	
+Iles Sous-le-Vent (Raromata'i)	Raiatea	314		Fare Oviri Lodge, Raiatea, Polynésie française	4,3	0,7	78	4	1	8000		
+Iles Sous-le-Vent (Raromata'i)	Raiatea	320		Villa IXORA Ranch, Raiatea	4,8	0,4	63	5	5	15000		
+Australes	Raivavae	225	Raivavae Tama Resort	Hotel Raivavae Tama Resort	2,7	1,4	16	3	7	23906	Plaine et Bord de mer (sable blanc lagon)	
+Australes	Raivavae	301		Pension Ataha, Raivavae	4,4	0,7	35	4,5	7	7620		
+Australes	Raivavae	309		Pension Chez Linda Condo, Raivavae	4,5	0,7	54	4,5	4			
+Tuamotu - Gambiers	Rangiroa	169	Ariitini Village	Ariitini Village, Avatoru	4,5	0,5	36	4	3	9000	Atoll, accès bord de mer	
+Tuamotu - Gambiers	Rangiroa	176	Chez Glorine		0	0		4,5	4	16000	Atoll, lagon	
+Tuamotu - Gambiers	Rangiroa	168	Chez Henriette	Hotel Chez Henriette Auberge	5	0	50	5	2	12000	Atoll, plaine	
+Tuamotu - Gambiers	Rangiroa	41	Hôtel Kia Ora Resort & Spa	Hotel Kia Ora Resort & Spa	4	1,1	906	4,5	60	74534	Atoll (sable blanc lagon), bungalow sur pilotis	
+Tuamotu - Gambiers	Rangiroa	40	Hôtel Maitai Rangiroa	Hotel Maitai Rangiroa, Avatoru	3,6	1,2	398	3	38	28538	Atoll (sable blanc lagon)	
+Tuamotu - Gambiers	Rangiroa	165	Hôtel Raira Lagon	Hotel Raira Lagon, Avatoru	4,1	0,9	198	4	10	14500	Atoll (sable blanc lagon)	
+Tuamotu - Gambiers	Rangiroa	179	Le Coconut Lodge	Hotel Le Coconut Lodge Chambres d'hôtes	4,6	0,8	238	2,5	4	25936	Atoll (sable blanc lagon)	
+Tuamotu - Gambiers	Rangiroa	160	Le Mérou Bleu	Merou Bleu, Avatoru	4,7	0,7	66	4,5	3	12948	Atoll (sable blanc lagon)	
+Tuamotu - Gambiers	Rangiroa	42	Le Sauvage Private Island		0	0			5	53588	Motu privé (sable blanc lagon)	
+Tuamotu - Gambiers	Rangiroa	174	Les Relais de Joséphine		0	0		2	7	19020	Atoll (sable blanc récif)	
+Tuamotu - Gambiers	Rangiroa	180	Miki Miki Lodge	Hotel Miki Miki Lodge Chambres d'hôtes	4,9	0,3	256	5	3	19549	Atoll (sable blanc récif)	
+Tuamotu - Gambiers	Rangiroa	175	Pension Bounty	Pension Bounty, Avatoru	4,8	0,5	676	4,5	4	18000	Atoll, accès bord de mer	
+Tuamotu - Gambiers	Rangiroa	163	Pension Cécile	Hotel Pension Cecile Auberge	4,3	1,1	306	2,5	9	9500	Atoll, lagon	
+Tuamotu - Gambiers	Rangiroa	161	Pension Loyna	Pension Loyna Ranch, Avatoru	4,7	0,5	112	4,5	4	13300	Atoll, plaine	
+Tuamotu - Gambiers	Rangiroa	170	Pension Martine	Hotel Pension Martine Chambres d'hôtes	3,3	0,9	26	4	3	18000	Atoll, accès bord de mer	
+Tuamotu - Gambiers	Rangiroa	166	Pension Punua et Moana	Pension Punua et Moana Cottage, Avatoru	4,6	0,7	128	4,5	7	15000	Atoll (sable blanc lagon)	
+Tuamotu - Gambiers	Rangiroa	173	Pension Rangiroa Plage	Hotel Pension Rangiroa Plage Auberge	4,7	0,7	197	4,5	5	12600	Atoll (sable blanc lagon)	
+Tuamotu - Gambiers	Rangiroa	181	Pension Tamatuamai	Hotel Pension Tamatuamai Chambres d'hôtes	4,2	0,9	50	4,5	3	10746	Atoll (sable blanc récif)	
+Tuamotu - Gambiers	Rangiroa	164	Pension Tapuheitini	Pension Tapuheitini, Avatoru	4,5	0,8	144	4,5	3	18865	Atoll, lagon	
+Tuamotu - Gambiers	Rangiroa	177	Pension Teina et Marie		0	0		4	10	15000	Atoll, lagon	
+Tuamotu - Gambiers	Rangiroa	162	Tevahine Dream	Tevahine Dream, Avatoru	4,7	0,7	478	2,5	5	11928	Atoll (sable blanc lagon)	
+Tuamotu - Gambiers	Rangiroa	178	Tiputa Lodge B&B	Hotel Tiputa Lodge B&B Chambres d'hôtes	5	0,2	129	3	1	22383	Atoll (sable blanc lagon)	
+Tuamotu - Gambiers	Rangiroa	171	Turiroa Village	Hotel Turiroa Village Auberge	4	1,2	40	4,5	4	10500	Atoll, accès bord de mer	
+Tuamotu - Gambiers	Rangiroa	167	Va'a i te moana	Hotel Va'a i te Moana Chambres d'hôtes	4,6	0,6	74	3	4	17050	Atoll, accès bord de mer	
+Tuamotu - Gambiers	Rangiroa	172	Vahaui Paradis	Vahaui Paradis Chalet, Avatoru	4,9	0,4	68	5	2	23360	Atoll (sable blanc récif)	
+Australes	Rimatara	224	La Perruche Rouge		0	0		4,5	4	20000	Montagne, vue sur lagon	
+Australes	Rurutu	223	Le Manotel	Le Manotel Hôtel, Rurutu, Austral Islands	4,6	0,8	88	4,5	6	19290	Bord de mer (sable blanc lagon récif océan)	
+Australes	Rurutu	221	Pension Teautamatea	Hotel Pension Teautamatea Chambres d'hôtes	4,8	0,4	53	3	3	10151	Plaine, accès à la mer	
+Australes	Rurutu	222	Vaitumu Village	Vaitumu Village Cottage, Rurutu, Austral Islands	4,9	0,3	88	5	8	21000	Bord de mer (sable blanc lagon récif océan)	
+Iles Sous-le-Vent (Raromata'i)	Tahaa	131	Au Phil Du Temps	Au Phil Du Temps Villa, Tahaa	4,9	0,2	242	3	3	13341	Bord de mer (lagon ponton)	
+Iles Sous-le-Vent (Raromata'i)	Tahaa	130	Fare Pea Iti	Hotel Fare Pea Iti Chambres d'hôtes, Tahaa, Polynésie française	4,8	0,6	245	2,5	6	26812	Bord de mer (sable blanc lagon ponton)	
+Iles Sous-le-Vent (Raromata'i)	Tahaa	125	Hôtel La Pirogue Api	Hotel La Pirogue Api Cottage, Tahaa	5	0	175	2,5	4	50680	Motu privé (sable blanc lagon)	
+Iles Sous-le-Vent (Raromata'i)	Tahaa	129	La Perle de Tahaa	Hotel La Perle de Tahaa Resort	3,9	1,2	179	3	7	19000	Bord de mer (lagon ponton)	
+Iles Sous-le-Vent (Raromata'i)	Tahaa	28	Le Taha'a Island Resort & Spa Relais & Châteaux		0	0		5	60	109851	Motu (sable blanc lagon), Lac, bungalow sur pilotis	
+Iles Sous-le-Vent (Raromata'i)	Tahaa	126	Pension Hibiscus Taha'a	Hotel Pension Hibiscus Tahaa Auberge	3,9	1,4	62	3,5	7	36060	Bord de mer (lagon ponton)	
+Iles Sous-le-Vent (Raromata'i)	Tahaa	127	Pension Titaina	Hotel Pension Titaina Chambres d'hôtes	4,8	0,4	150	5	3	13750	Plaine, jardin arboré	
+Iles Sous-le-Vent (Raromata'i)	Tahaa	128	Résidence d'hôtes Le Passage	Hotel Residence D'Hotes Le Passage Chambres d'hôtes	3,5	1,7	14	3,5	4	33250	Bord de mer (lagon ponton)	
+Iles Sous-le-Vent (Raromata'i)	Tahaa	27	Vahine Island Private Island Resort	Hotel Vahine Island ile privée Resort & Spa	5	0,1	568	4	9	53597	Motu privé (sable blanc lagon), bungalow sur pilotis	
+Iles Sous-le-Vent (Raromata'i)	Tahaa	308		Tahaa Village	4,9	0,4	34	5	5	18000		
+Iles du Vent (Ni'amata'i)	Tahiti	49	Ahitea Lodge B&B	Hotel Ahitea Lodge Chambres d'hôtes, Tahiti/Papeete	3,8	1	114	4	12	8719	Centre ville	
+Iles du Vent (Ni'amata'i)	Tahiti	68	Bonjouir Lodge Paradise Pension	Hotel Bonjouir Lodge Paradise Pension Auberge	3,9	1,2	58	3	15	12480	Bord de mer (sable noir lagon)	
+Iles du Vent (Ni'amata'i)	Tahiti	55	Chez Fifi	Chez Fifi Hôtel, Tahiti	2,7	2,1	8	2,5	5	5000	Plaine, chez l'habitant	
+Iles du Vent (Ni'amata'i)	Tahiti	67	Fare Arearea	Fare Arearea Condo, Tahiti	3,5	0,7	7	2,5	3	9892	Bord de mer (jardin arboré lagon)	
+Iles du Vent (Ni'amata'i)	Tahiti	64	Fare Hau	Hotel FareHau Chambres d'hôtes, Tahiti, Polynésie française	3,5	0,7	7	4	5	10000	Plaine	
+Iles du Vent (Ni'amata'i)	Tahiti	69	Fare Maorina		0	0		4,5	4	10610	Plaine, jardin arboré, accès mer	
+Iles du Vent (Ni'amata'i)	Tahiti	57	Fare Suisse	Fare Suisse Tahiti, Papeete	4,2	1	308	3	8	10203	Centre ville	
+Iles du Vent (Ni'amata'i)	Tahiti	56	Heitiare Inn		0	0		1,5	12	7500	Centre ville	
+Iles du Vent (Ni'amata'i)	Tahiti	63	Hiti Moana Villa		0	0		3	8	10151	Bord de mer, jardin arboré, lagon	
+Iles du Vent (Ni'amata'i)	Tahiti	8	Hôtel Sarah Nui	Hotel Sarah Nui, Tahiti/Papeete	3,3	0,9	330	3	75	13764	Centre ville de Papeete / Business	
+Iles du Vent (Ni'amata'i)	Tahiti	4	Hôtel Tahiti Nui	Hotel Tahiti Nui, Papeete	3,8	0,9	612	4	91	25788	Centre ville de Papeete / Business	
+Iles du Vent (Ni'amata'i)	Tahiti	7	Hôtel Tiare Tahiti	Hotel Tiare Tahiti, Papeete	3,3	0,9	198	2	38	10949	Centre ville de Papeete / Business	
+Iles du Vent (Ni'amata'i)	Tahiti	1	InterContinental Tahiti Resort & Spa	Hotel InterContinental Tahiti Resort & Spa, Polynésie française	4,2	1	748	4,5	246	43542	Bord de mer (sable blanc lagon), bungalow sur pilotis	
+Iles du Vent (Ni'amata'i)	Tahiti	5	Le Méridien Tahiti		0	0		4	149	34230	Bord de mer (sable blanc lagon), bungalow sur pilotis	
+Iles du Vent (Ni'amata'i)	Tahiti	9	Le Relais de la Maroto		0	0		2,5	21	10591	Montagne, cœur de l'île / Cave à vin	
+Iles du Vent (Ni'amata'i)	Tahiti	10	Le Royal Tahitien	Royal Tahitien Hôtel, Tahiti/Pirae	3,62	1,29	95	3	40	15862	Bord de mer (sable noir, lagon)	
+Iles du Vent (Ni'amata'i)	Tahiti	62	Mahana Lodge Hostel & Backpacker	Hotel Mahana Lodge Hostel & Backpacker Auberge, Tahiti/Papeete	3,6	1,4	122	2	8	5529	Centre ville	
+Iles du Vent (Ni'amata'i)	Tahiti	58	Maison d'Hôte Tutehau	Hotel Maison D'Hotes Tutehau Chambres d'hôtes, Tahiti/Papeete	4,4	0,9	160	4,5	4	13015	Centre ville	
+Iles du Vent (Ni'amata'i)	Tahiti	3	Manava Suite Resort Tahiti	Manava Suite Resort Tahiti Hôtel, Punaauia	3,9	1,1	992	4	121	35561	Bord de mer (pas de plage, lagon)	
+Iles du Vent (Ni'amata'i)	Tahiti	54	Pension Armelle - Te Nahe Toe Toe	Hotel Pension Armelle Te Nahe Toe Toe Chambres d'hôtes, Tahiti/Punaauia	3	1,8	12	3	4		Bord de mer (sable blanc lagon)	
+Iles du Vent (Ni'amata'i)	Tahiti	50	Pension Damyr	Hotel Pension Damyr Chambres d'hôtes	4,7	0,6	14	3,5	2	9500	Plaine, jardin arboré	
+Iles du Vent (Ni'amata'i)	Tahiti	61	Pension de la Plage Tahiti	Pension de la Plage Tahiti, Punaauia	3,8	0,8	518	3	12	11635	Bord de mer (sable blanc lagon)	
+Iles du Vent (Ni'amata'i)	Tahiti	52	Pension Puea	Pension Puea, Tahiti/Papeete	4	0	8	2,5	8	7000	Centre ville	
+Iles du Vent (Ni'amata'i)	Tahiti	48	Pension Te Miti	Hotel Pension Te Miti Chambres d'hôtes, Tahiti/Punaauia	4,1	1	130	2	7	5131	Plaine, accès mer	
+Iles du Vent (Ni'amata'i)	Tahiti	66	Pueu Village	Hotel Pueu Village Chambres d'hôtes	2	1,4	4	2,5	4	12470	Bord de mer (jardin arboré lagon)	
+Iles du Vent (Ni'amata'i)	Tahiti	47	Punatea Village	Hotel Punatea Village Chambres d'hôtes, Tahiti/Papeete	3,4	1,1	54	2,5	8	6742	Bord de mer, jardin arboré, océan	
+Iles du Vent (Ni'amata'i)	Tahiti	59	Relais Fenua	Hotel Relais Fenua Chambres d'hôtes, Tahiti/Punaauia	4	1	265	3	11	9547	Plaine, chez l'habitant	
+Iles du Vent (Ni'amata'i)	Tahiti	70	Taaroa Lodge	taaroa lodge, Tahiti/Papeete	5	0	10	4,5	3	6250	Bord de mer (sable blanc lagon)	
+Iles du Vent (Ni'amata'i)	Tahiti	65	Taharu'u Surf Lodge	Taharuu Surf Lodge, Papara	5	0	15	2	8	7457	Plaine, accès mer	
+Iles du Vent (Ni'amata'i)	Tahiti	6	Tahiti Airport Motel	Hotel Tahiti Airport Motel, Polynésie française	3,4	1	478	2,5	46	14070	Aéroport de Tahiti Faa'a	
+Iles du Vent (Ni'amata'i)	Tahiti	2	Tahiti Pearl Beach Resort	Tahiti Pearl Beach Resort, Arue	4	1,1	1106	4	91	35388	Bord de mer (sable noir océan)	
+Iles du Vent (Ni'amata'i)	Tahiti	53	Tauhanihani Village La Vague Bleue		0	0		2,5	6		Plaine, jardin arboré, accès mer	
+Iles du Vent (Ni'amata'i)	Tahiti	51	Teamo Hostel		0	0		3	11	8000	Centre ville	
+Iles du Vent (Ni'amata'i)	Tahiti	11	Tiki Hotel	Tiki Hotel, Tahiti/Punaauia	3,8	0,4	46	3	20	8835	Plaine, vue sur mer	
+Iles du Vent (Ni'amata'i)	Tahiti	46	Vanira Lodge	Vanira Lodge Villa, Teahupoo, Tahiti, Polynésie française	4,2	1	218	3,5	9	18556	Montagne, vue sur l'océan	
+Iles du Vent (Ni'amata'i)	Tahiti	60	Villa Mitirapa	Villa Mitirapa, Tahiti	3,8	1,3	45	4	4	26014	Bord de mer, jardin arboré, lagon	
+Iles du Vent (Ni'amata'i)	Tahiti	304		Hotel Pension Reva Teahupoo Chambres d'hôtes, Tahiti, Polynésie française	4,8	0,4	62	4,5	2	10300		
+Iles du Vent (Ni'amata'i)	Tahiti	313		Hotel Otaha Lodge Chambres d'hôtes, Tahiti/Punaauia	1	0	2	4	6	13000		
+Iles du Vent (Ni'amata'i)	Tahiti	316		Hotel Tahiti Ia Ora Beach Resort - Managed by Sofitel, Punaauia	3,8	1,2	364	3,5	149	23898		
+Iles du Vent (Ni'amata'i)	Tahiti	399		Fare Arearea Sweet Studio Condo, Tahiti/Papeete	3,1	1	56	3		14566		
+Iles du Vent (Ni'amata'i)	Tetiaroa	21	The Brando	Hotel The Brando Resort	4,9	0,6	127	5	35	716070	Atoll privé (sable blanc lagon)	
+Tuamotu - Gambiers	Tikehau	194	Aito Motel Colette	Hotel Aito Motel Colette Chambres d'hôtes	3,7	1,6	160	2	5	11933	Atoll (sable blanc lagon)	
+Tuamotu - Gambiers	Tikehau	198	Hakamanu Lodge	Hakamanu Lodge, Tuherahera	4,5	0,9	86	4,5	4	18946	Atoll (sable blanc lagon ponton)	
+Tuamotu - Gambiers	Tikehau	197	Pension Coconut Beach		0	0		4,5	3		Atoll (sable blanc lagon)	
+Tuamotu - Gambiers	Tikehau	196	Tikehau Bed and Breakfast		0	0		2,5	5	12327	Atoll (sable blanc lagon)	
+Tuamotu - Gambiers	Tikehau	195	Tikehau Ninamu Resort	Hotel Ninamu Resort	4,9	0,4	98	3,5	8	72433	Atoll privé (sable blanc lagon)	
+Tuamotu - Gambiers	Tikehau	43	Tikehau Pearl Beach Resort	Hotel Tikehau Pearl Beach Resort	4,3	1	550	4	37	57534	Atoll (sable blanc lagon), bungalow sur pilotis	
+Tuamotu - Gambiers	Tikehau	199	Tikehau Village	Hotel Tikehau Village Chambres d'hôtes	4,2	1,1	272	4	9	12885	Atoll (sable blanc lagon)	
+Australes	Tubuai	220	Pension Toena		0	0		4,5	2	6250	Plaine, vue sur mer, hébergement chez l'habitant	
+Marquises	Ua Huka	219	Chez Maurice et Delphine		0	0		4	5	13492	Montagne, vue sur l'ocean	
+Marquises	Ua Pou	218	Pension Pukuee		0	0		3	2	11500	Montagne, vue sur l'océan	
+	Tikehau	310		Hotel Pension Hotu Chambres d'hôtes	3,3	1,5	56	3,5	6	16000		
+	Avatoru	311		Hotel Pension Turiroa Chez Olga Auberge	3,8	1,5	38	3,5				
+	Tikehau	321		Relais Royal Tikehau Ranch	4,5	0,9	263	4,5		32954		
+	Moorea	322		Hotel Villa Bella Vista Chambres d'hôtes	4,9	0,4	34	5	2	28417		
+	Tikehau	323		Hotel Pension Justine Auberge	3,4	1,3	75		7	12000		
